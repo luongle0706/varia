@@ -1,0 +1,227 @@
+import React, { useState } from 'react';
+import {
+  Container,
+  Box,
+  Typography,
+  Stack,
+  Chip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from '@mui/material';
+import { AppHeader, BentoGrid, ToolCard, SpotlightSearch, GlassCard } from '@varia/ui';
+import { REGISTERED_TOOLS } from './registry/tools';
+import { TOOL_CATEGORIES, type ToolCategory, type VariaToolManifest } from '@varia/core';
+import { Sparkles, Zap, Shield, HardDriveDownload } from 'lucide-react';
+
+const App: React.FC = () => {
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<ToolCategory | 'all'>('all');
+  const [activeTool, setActiveTool] = useState<VariaToolManifest | null>(null);
+
+  const filteredTools =
+    selectedCategory === 'all'
+      ? REGISTERED_TOOLS
+      : REGISTERED_TOOLS.filter(t => t.category === selectedCategory);
+
+  const categories: Array<{ id: ToolCategory | 'all'; label: string }> = [
+    { id: 'all', label: 'All Utilities' },
+    { id: 'media', label: 'Media Studio' },
+    { id: 'dev', label: 'Developer Tools' },
+    { id: 'network', label: 'Network' },
+    { id: 'social', label: 'Social & Grabber' },
+    { id: 'text', label: 'Text & Docs' },
+  ];
+
+  return (
+    <Box sx={{ minHeight: '100vh', pb: 10 }}>
+      {/* Sticky Header */}
+      <AppHeader onOpenSearch={() => setSearchOpen(true)} toolCount={REGISTERED_TOOLS.length} />
+
+      <Container maxWidth="lg" sx={{ pt: { xs: 5, md: 8 } }}>
+        {/* Hero Section */}
+        <Box sx={{ textAlign: 'center', mb: 6 }}>
+          <Stack direction="row" spacing={1} justifyContent="center" mb={2}>
+            <Chip
+              icon={<Sparkles size={14} style={{ color: '#8b5cf6' }} />}
+              label="Modern • Minimalist • Client-First"
+              size="small"
+              sx={{
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                border: '1px solid rgba(139, 92, 246, 0.25)',
+                color: '#a78bfa',
+                fontWeight: 600,
+                px: 1,
+              }}
+            />
+          </Stack>
+
+          <Typography
+            variant="h2"
+            sx={{
+              fontWeight: 800,
+              fontSize: { xs: '2.4rem', md: '3.6rem' },
+              background: 'linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              letterSpacing: '-0.03em',
+              mb: 2,
+            }}
+          >
+            All your daily digital tools.
+            <br />
+            <span style={{ color: '#8b5cf6', WebkitTextFillColor: '#8b5cf6' }}>Zero clutter.</span>
+          </Typography>
+
+          <Typography
+            variant="body1"
+            sx={{
+              color: '#a1a1aa',
+              fontSize: { xs: '1rem', md: '1.2rem' },
+              maxWidth: 640,
+              mx: 'auto',
+              lineHeight: 1.6,
+            }}
+          >
+            A high-performance personal monorepo workspace for audio extraction, GIF editing, UUID forge, network speed test and developer utilities.
+          </Typography>
+
+          {/* Quick Feature Badges */}
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            justifyContent="center"
+            alignItems="center"
+            mt={4}
+          >
+            <GlassCard sx={{ py: 1.2, px: 2, display: 'flex', alignItems: 'center', gap: 1.2 }}>
+              <Zap size={18} color="#8b5cf6" />
+              <Typography variant="caption" sx={{ color: '#f4f4f5', fontWeight: 600 }}>
+                Instant Client-Side WASM
+              </Typography>
+            </GlassCard>
+
+            <GlassCard sx={{ py: 1.2, px: 2, display: 'flex', alignItems: 'center', gap: 1.2 }}>
+              <Shield size={18} color="#06b6d4" />
+              <Typography variant="caption" sx={{ color: '#f4f4f5', fontWeight: 600 }}>
+                100% Privacy • No Tracking
+              </Typography>
+            </GlassCard>
+
+            <GlassCard sx={{ py: 1.2, px: 2, display: 'flex', alignItems: 'center', gap: 1.2 }}>
+              <HardDriveDownload size={18} color="#10b981" />
+              <Typography variant="caption" sx={{ color: '#f4f4f5', fontWeight: 600 }}>
+                Self-Host & Docker Ready
+              </Typography>
+            </GlassCard>
+          </Stack>
+        </Box>
+
+        {/* Category Navigation Pills */}
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            overflowX: 'auto',
+            pb: 2,
+            mb: 4,
+            '&::-webkit-scrollbar': { display: 'none' },
+          }}
+          justifyContent={{ xs: 'flex-start', md: 'center' }}
+        >
+          {categories.map(cat => {
+            const isActive = selectedCategory === cat.id;
+            return (
+              <Chip
+                key={cat.id}
+                label={cat.label}
+                onClick={() => setSelectedCategory(cat.id)}
+                clickable
+                sx={{
+                  px: 1.5,
+                  py: 2.2,
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  borderRadius: 2.5,
+                  transition: 'all 0.2s ease',
+                  backgroundColor: isActive ? '#8b5cf6' : 'rgba(255, 255, 255, 0.04)',
+                  color: isActive ? '#ffffff' : '#a1a1aa',
+                  border: `1px solid ${isActive ? '#8b5cf6' : 'rgba(255, 255, 255, 0.06)'}`,
+                  '&:hover': {
+                    backgroundColor: isActive ? '#7c3aed' : 'rgba(255, 255, 255, 0.08)',
+                    borderColor: isActive ? '#7c3aed' : 'rgba(255, 255, 255, 0.15)',
+                  },
+                }}
+              />
+            );
+          })}
+        </Stack>
+
+        {/* Bento Grid Tool Showcase */}
+        <BentoGrid columns={{ xs: 1, sm: 2, md: 3, lg: 3 }}>
+          {filteredTools.map(tool => (
+            <ToolCard
+              key={tool.id}
+              tool={tool}
+              onClick={() => setActiveTool(tool)}
+            />
+          ))}
+        </BentoGrid>
+      </Container>
+
+      {/* Spotlight Command Search Modal (Ctrl+K) */}
+      <SpotlightSearch
+        tools={REGISTERED_TOOLS}
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onSelectTool={tool => setActiveTool(tool)}
+      />
+
+      {/* Tool Launch Modal */}
+      {activeTool && (
+        <Dialog
+          open={Boolean(activeTool)}
+          onClose={() => setActiveTool(null)}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{
+            sx: {
+              backgroundColor: '#121217',
+              borderRadius: 3.5,
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            },
+          }}
+        >
+          <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>
+            {activeTool.name}
+          </DialogTitle>
+          <DialogContent>
+            <Typography variant="body2" sx={{ color: '#a1a1aa', mb: 2 }}>
+              {activeTool.description}
+            </Typography>
+            <GlassCard sx={{ p: 2 }}>
+              <Typography variant="caption" sx={{ color: '#8b5cf6', fontWeight: 600, display: 'block', mb: 0.5 }}>
+                Module Route: {activeTool.route}
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#71717a', fontSize: '0.8rem' }}>
+                Tool này nằm trong module <b>{TOOL_CATEGORIES[activeTool.category]?.name}</b>. Khi chúng ta phát triển chi tiết cho tool này ở các bước tiếp theo, component tương tác đầy đủ sẽ được render tại đây.
+              </Typography>
+            </GlassCard>
+          </DialogContent>
+          <DialogActions sx={{ p: 2.5, pt: 0 }}>
+            <Button onClick={() => setActiveTool(null)} variant="outlined">
+              Close
+            </Button>
+            <Button onClick={() => setActiveTool(null)} variant="contained">
+              Ready to Build
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+    </Box>
+  );
+};
+
+export default App;
