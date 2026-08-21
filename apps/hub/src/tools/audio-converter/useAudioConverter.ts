@@ -91,7 +91,9 @@ export function useAudioConverter(): UseAudioConverterReturn {
   const decodeAudioForWaveform = useCallback(async (file: File) => {
     try {
       if (!activeAudioContextRef.current) {
-        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const AudioCtx =
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
         activeAudioContextRef.current = new AudioCtx();
       }
 
@@ -176,9 +178,7 @@ export function useAudioConverter(): UseAudioConverterReturn {
 
   const updateItemFormat = useCallback((id: string, format: AudioFormat) => {
     setQueue(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, options: { ...item.options, format } } : item,
-      ),
+      prev.map(item => (item.id === id ? { ...item, options: { ...item.options, format } } : item)),
     );
   }, []);
 
@@ -229,7 +229,9 @@ export function useAudioConverter(): UseAudioConverterReturn {
         progress => {
           setQueue(prev =>
             prev.map(item =>
-              item.id === activeItem.id ? { ...item, progress: progress.percent, status: 'converting' } : item,
+              item.id === activeItem.id
+                ? { ...item, progress: progress.percent, status: 'converting' }
+                : item,
             ),
           );
         },

@@ -7,7 +7,10 @@ export type HashAlgorithm = 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512' | 'MD5';
 /**
  * Hash a text string using native Web Crypto API or JS MD5 fallback
  */
-export async function hashText(text: string, algorithm: HashAlgorithm = 'SHA-256'): Promise<string> {
+export async function hashText(
+  text: string,
+  algorithm: HashAlgorithm = 'SHA-256',
+): Promise<string> {
   const encoder = new TextEncoder();
   const data = encoder.encode(text);
   return hashBuffer(data, algorithm);
@@ -48,19 +51,51 @@ function md5(data: Uint8Array): string {
     return safeAdd(bitRol(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b);
   }
 
-  function md5ff(a: number, b: number, c: number, d: number, x: number, s: number, t: number): number {
+  function md5ff(
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    x: number,
+    s: number,
+    t: number,
+  ): number {
     return md5cmn((b & c) | (~b & d), a, b, x, s, t);
   }
 
-  function md5gg(a: number, b: number, c: number, d: number, x: number, s: number, t: number): number {
+  function md5gg(
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    x: number,
+    s: number,
+    t: number,
+  ): number {
     return md5cmn((b & d) | (c & ~d), a, b, x, s, t);
   }
 
-  function md5hh(a: number, b: number, c: number, d: number, x: number, s: number, t: number): number {
+  function md5hh(
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    x: number,
+    s: number,
+    t: number,
+  ): number {
     return md5cmn(b ^ c ^ d, a, b, x, s, t);
   }
 
-  function md5ii(a: number, b: number, c: number, d: number, x: number, s: number, t: number): number {
+  function md5ii(
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    x: number,
+    s: number,
+    t: number,
+  ): number {
     return md5cmn(c ^ (b | ~d), a, b, x, s, t);
   }
 
@@ -164,7 +199,8 @@ function md5(data: Uint8Array): string {
   let out = '';
   for (const num of [a, b, c, d]) {
     for (let j = 0; j < 4; j++) {
-      out += hexDigits.charAt((num >> (j * 8 + 4)) & 0x0f) + hexDigits.charAt((num >> (j * 8)) & 0x0f);
+      out +=
+        hexDigits.charAt((num >> (j * 8 + 4)) & 0x0f) + hexDigits.charAt((num >> (j * 8)) & 0x0f);
     }
   }
   return out;

@@ -116,7 +116,13 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
         </Box>
 
         {/* Supported Format Chips */}
-        <Stack direction="row" spacing={0.6} flexWrap="wrap" justifyContent="center" sx={{ maxWidth: 500 }}>
+        <Stack
+          direction="row"
+          spacing={0.6}
+          flexWrap="wrap"
+          justifyContent="center"
+          sx={{ maxWidth: 500 }}
+        >
           {formats.map(fmt => (
             <Chip
               key={fmt}

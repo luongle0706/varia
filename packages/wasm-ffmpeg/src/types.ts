@@ -33,4 +33,3 @@ export type WorkerOutMessage =
   | { type: 'COMPLETE'; result: TranscodeResult }
   | { type: 'ERROR'; jobId: string; error: string }
   | { type: 'CANCELLED'; jobId: string };
-

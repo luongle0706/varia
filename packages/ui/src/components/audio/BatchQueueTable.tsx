@@ -65,7 +65,12 @@ export const BatchQueueTable: React.FC<BatchQueueTableProps> = ({
       }}
     >
       {/* Table Header Controls */}
-      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" mb={2}>
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
         <Stack direction="row" spacing={1.5} alignItems="center">
           <FileAudio size={20} color={colorTokens.accent.violet} />
           <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
@@ -137,7 +142,12 @@ export const BatchQueueTable: React.FC<BatchQueueTableProps> = ({
                 transition: 'all 0.2s ease',
               }}
             >
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems="center">
+              <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                spacing={2}
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 {/* File Info */}
                 <Box sx={{ minWidth: 220, maxWidth: { xs: '100%', md: 320 } }}>
                   <Typography noWrap variant="body2" sx={{ fontWeight: 600 }}>
@@ -178,10 +188,16 @@ export const BatchQueueTable: React.FC<BatchQueueTableProps> = ({
                   {isInProgress ? (
                     <Box>
                       <Stack direction="row" justifyContent="space-between" mb={0.5}>
-                        <Typography variant="caption" sx={{ color: colorTokens.accent.violet, fontWeight: 600 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{ color: colorTokens.accent.violet, fontWeight: 600 }}
+                        >
                           {item.status === 'loading' ? 'Loading Engine...' : 'Transcoding...'}
                         </Typography>
-                        <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 600 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{ fontFamily: 'monospace', fontWeight: 600 }}
+                        >
                           {item.progress}%
                         </Typography>
                       </Stack>
@@ -249,7 +265,10 @@ export const BatchQueueTable: React.FC<BatchQueueTableProps> = ({
                     size="small"
                     disabled={isConverting && isInProgress}
                     onClick={() => onRemoveItem(item.id)}
-                    sx={{ color: colorTokens.text.muted, '&:hover': { color: colorTokens.accent.rose } }}
+                    sx={{
+                      color: colorTokens.text.muted,
+                      '&:hover': { color: colorTokens.accent.rose },
+                    }}
                   >
                     <Trash2 size={16} />
                   </IconButton>

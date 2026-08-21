@@ -32,7 +32,8 @@ export const variaThemeOptions: ThemeOptions = {
     divider: colorTokens.bg.border,
   },
   typography: {
-    fontFamily: '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily:
+      '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
     h1: {
       fontWeight: 800,
       letterSpacing: '-0.03em',

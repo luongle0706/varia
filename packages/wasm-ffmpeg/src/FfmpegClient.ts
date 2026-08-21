@@ -58,7 +58,9 @@ export class FfmpegClient {
           break;
         }
         case 'COMPLETE': {
-          console.log(`[Varia:WASM-Client] Job ${msg.result.jobId} completed successfully (${msg.result.outputName})`);
+          console.log(
+            `[Varia:WASM-Client] Job ${msg.result.jobId} completed successfully (${msg.result.outputName})`,
+          );
           const job = this.activeJobs.get(msg.result.jobId);
           if (job) {
             this.activeJobs.delete(msg.result.jobId);
@@ -120,7 +122,9 @@ export class FfmpegClient {
       const handleLoadMessage = (e: MessageEvent<WorkerOutMessage>) => {
         const msg = e.data;
         if (msg.type === 'ENGINE_LOAD_PROGRESS') {
-          console.log(`[Varia:WASM-Client] Engine Status: ${msg.progress.stage} (${msg.progress.progress}%)`);
+          console.log(
+            `[Varia:WASM-Client] Engine Status: ${msg.progress.stage} (${msg.progress.progress}%)`,
+          );
           if (onProgress) onProgress(msg.progress);
         } else if (msg.type === 'ENGINE_LOADED') {
           console.log('[Varia:WASM-Client] Engine initialization confirmed ready!');

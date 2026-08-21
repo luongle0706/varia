@@ -80,7 +80,9 @@ export async function fetchWithCache(
 
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to fetch WASM asset: ${url} (${response.status} ${response.statusText})`);
+    throw new Error(
+      `Failed to fetch WASM asset: ${url} (${response.status} ${response.statusText})`,
+    );
   }
 
   const contentLength = response.headers.get('content-length');

@@ -18,6 +18,9 @@ import { TOOL_CATEGORIES, type ToolCategory, type VariaToolManifest } from '@var
 import { Sparkles, Zap, Shield, HardDriveDownload } from 'lucide-react';
 
 const AudioConverterTool = lazy(() => import('./tools/audio-converter/AudioConverterTool'));
+const YouTubeDownloaderTool = lazy(
+  () => import('./tools/youtube-downloader/YouTubeDownloaderTool'),
+);
 
 const DEFAULT_TITLE = 'Varia — Minimalist Everyday Digital Toolkit';
 
@@ -41,10 +44,14 @@ const App: React.FC = () => {
   const findToolByPath = useCallback(
     (pathname: string): VariaToolManifest | null => {
       const basePath = getBasePath();
-      const cleanPath = (basePath ? pathname.replace(basePath, '') : pathname).replace(/\/$/, '') || '/';
+      const cleanPath =
+        (basePath ? pathname.replace(basePath, '') : pathname).replace(/\/$/, '') || '/';
       return (
         REGISTERED_TOOLS.find(
-          t => t.route === cleanPath || t.route === `/tools${cleanPath}` || `/tools/${t.id}` === cleanPath,
+          t =>
+            t.route === cleanPath ||
+            t.route === `/tools${cleanPath}` ||
+            `/tools/${t.id}` === cleanPath,
         ) || null
       );
     },
@@ -55,7 +62,8 @@ const App: React.FC = () => {
   const syncRouteWithState = useCallback(() => {
     const currentPath = window.location.pathname;
     const basePath = getBasePath();
-    const relativePath = (basePath ? currentPath.replace(basePath, '') : currentPath).replace(/\/$/, '') || '/';
+    const relativePath =
+      (basePath ? currentPath.replace(basePath, '') : currentPath).replace(/\/$/, '') || '/';
 
     if (relativePath === '/' || relativePath === '') {
       setActiveWorkspaceTool(null);
@@ -66,7 +74,7 @@ const App: React.FC = () => {
 
     const matchedTool = findToolByPath(currentPath);
     if (matchedTool) {
-      if (matchedTool.id === 'tool-audio-converter') {
+      if (matchedTool.component) {
         setActiveWorkspaceTool(matchedTool);
         setActiveModalTool(null);
       } else {
@@ -99,7 +107,7 @@ const App: React.FC = () => {
     window.history.pushState({ toolId: tool.id }, '', `${basePath}${tool.route}`);
     document.title = `${tool.name} — Varia`;
 
-    if (tool.id === 'tool-audio-converter') {
+    if (tool.component) {
       setActiveWorkspaceTool(tool);
       setActiveModalTool(null);
     } else {
@@ -130,16 +138,29 @@ const App: React.FC = () => {
     { id: 'text', label: 'Text & Docs' },
   ];
 
-  if (activeWorkspaceTool && activeWorkspaceTool.id === 'tool-audio-converter') {
+  // Render active workspace tool if selected
+  if (activeWorkspaceTool) {
     return (
       <Suspense
         fallback={
-          <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Box
+            sx={{
+              minHeight: '100vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             <CircularProgress sx={{ color: '#8b5cf6' }} />
           </Box>
         }
       >
-        <AudioConverterTool onBack={handleBackToHub} />
+        {activeWorkspaceTool.id === 'tool-audio-converter' && (
+          <AudioConverterTool onBack={handleBackToHub} />
+        )}
+        {activeWorkspaceTool.id === 'tool-youtube-downloader' && (
+          <YouTubeDownloaderTool onBack={handleBackToHub} />
+        )}
       </Suspense>
     );
   }
@@ -194,7 +215,8 @@ const App: React.FC = () => {
               lineHeight: 1.6,
             }}
           >
-            A high-performance personal monorepo workspace for audio extraction, GIF editing, UUID forge, network speed test and developer utilities.
+            A high-performance personal monorepo workspace for audio extraction, GIF editing, UUID
+            forge, network speed test and developer utilities.
           </Typography>
 
           {/* Quick Feature Badges */}
@@ -271,11 +293,7 @@ const App: React.FC = () => {
         {/* Bento Grid Tool Showcase */}
         <BentoGrid columns={{ xs: 1, sm: 2, md: 3, lg: 3 }}>
           {filteredTools.map(tool => (
-            <ToolCard
-              key={tool.id}
-              tool={tool}
-              onClick={() => handleSelectTool(tool)}
-            />
+            <ToolCard key={tool.id} tool={tool} onClick={() => handleSelectTool(tool)} />
           ))}
         </BentoGrid>
       </Container>
@@ -303,19 +321,22 @@ const App: React.FC = () => {
             },
           }}
         >
-          <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>
-            {activeModalTool.name}
-          </DialogTitle>
+          <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>{activeModalTool.name}</DialogTitle>
           <DialogContent>
             <Typography variant="body2" sx={{ color: '#a1a1aa', mb: 2 }}>
               {activeModalTool.description}
             </Typography>
             <GlassCard sx={{ p: 2 }}>
-              <Typography variant="caption" sx={{ color: '#8b5cf6', fontWeight: 600, display: 'block', mb: 0.5 }}>
+              <Typography
+                variant="caption"
+                sx={{ color: '#8b5cf6', fontWeight: 600, display: 'block', mb: 0.5 }}
+              >
                 Module Route: {activeModalTool.route}
               </Typography>
               <Typography variant="body2" sx={{ color: '#71717a', fontSize: '0.8rem' }}>
-                This tool belongs to the <b>{TOOL_CATEGORIES[activeModalTool.category]?.name}</b> module. When this tool is developed in future steps, its fully interactive workspace component will render here.
+                This tool belongs to the <b>{TOOL_CATEGORIES[activeModalTool.category]?.name}</b>{' '}
+                module. When this tool is developed in future steps, its fully interactive workspace
+                component will render here.
               </Typography>
             </GlassCard>
           </DialogContent>
