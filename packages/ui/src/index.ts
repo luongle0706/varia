@@ -6,3 +6,4 @@ export * from './components/ToolCard';
 export * from './components/BentoGrid';
 export * from './components/SpotlightSearch';
 export * from './components/AppHeader';
+export * from './components/audio';

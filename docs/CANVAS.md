@@ -42,20 +42,23 @@ graph TD
 
 ## 🔌 2. Plug-and-Play Tool Manifest Contract
 
-Mỗi mini-tool khi được thêm vào hệ thống sẽ tuân theo cấu trúc manifest độc lập (không làm phình code của Hub):
+Every mini-tool added to the ecosystem follows an isolated manifest contract (preventing Hub bundle bloating via dynamic imports):
 
 ```typescript
-export interface VariaToolManifest {
+export type ToolCategory = 'media' | 'dev' | 'network' | 'social' | 'text';
+
+export interface VariaToolManifest<TComponent = unknown> {
   id: string; // e.g. 'tool-audio-converter'
   name: string; // 'MP4 to MP3 Converter'
   description: string;
-  category: 'media' | 'dev' | 'network' | 'social' | 'text';
-  icon: string; // Lucide / MUI Icon name
+  category: ToolCategory;
+  icon: string; // Lucide / MUI Icon identifier
   tags: string[];
   isOfflineReady: boolean;
+  requiresServer?: boolean;
   wasmRequired?: boolean;
   route: string; // '/tools/audio-converter'
-  component: () => Promise<{ default: React.ComponentType }>;
+  component?: () => Promise<{ default: TComponent }>;
 }
 ```
 
@@ -63,13 +66,13 @@ export interface VariaToolManifest {
 
 ## 🎨 3. Custom Material UI Design System (`@varia/ui`)
 
-* **Bảng màu Deep Obsidian / Zinc**: Background `#09090b`, Card Surface `#18181b` với viền sáng mờ `rgba(255, 255, 255, 0.08)`.
-* **Hiệu ứng Glassmorphism**: `backdrop-filter: blur(16px)` cho Appbar, Modals, Bento Cards.
-* **Typography**: `Plus Jakarta Sans` cho UI chính, `JetBrains Mono` cho Code/UUID/Base64.
-* **Bento Grid**: Bố cục dạng thẻ linh hoạt tại `apps/hub`.
+* **Deep Obsidian / Zinc Palette**: Background `#09090b`, Card Surface `#18181b` with subtle glowing borders `rgba(255, 255, 255, 0.08)`.
+* **Glassmorphism Effects**: `backdrop-filter: blur(16px)` on AppBar, Modals, and Bento Cards.
+* **Typography**: `Plus Jakarta Sans` for primary UI elements, `JetBrains Mono` / monospace for Code, UUIDs, and Base64 strings.
+* **Bento Grid**: Modular, responsive card layout powering the Hub launchpad at `apps/hub`.
 
 ---
 
-## 📚 Tài Liệu Chi Tiết Liên Quan
-* 🧰 **Danh mục 20+ Mini-tools chi tiết:** [docs/TOOL_CATALOG.md](./TOOL_CATALOG.md)
-* 🏆 **Tiêu chuẩn Kỹ thuật & CI/CD:** [docs/ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md)
+## 📚 Related Documentation
+* 🧰 **Detailed 20+ Mini-Tools Catalog:** [docs/TOOL_CATALOG.md](./TOOL_CATALOG.md)
+* 🏆 **Engineering Standards & CI/CD:** [docs/ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md)

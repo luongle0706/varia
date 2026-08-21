@@ -1,0 +1,25 @@
+{
+  "name": "@varia/wasm-ffmpeg",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
+    "@varia/core": "workspace:*",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "@ffmpeg/core": "^0.12.10",
+    "@types/jszip": "^3.4.1",
+    "@varia/tsconfig": "workspace:*",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

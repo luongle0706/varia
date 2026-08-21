@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense, lazy, useCallback } from 'react';
 import {
   Container,
   Box,
@@ -10,16 +10,92 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  CircularProgress,
 } from '@mui/material';
 import { AppHeader, BentoGrid, ToolCard, SpotlightSearch, GlassCard } from '@varia/ui';
 import { REGISTERED_TOOLS } from './registry/tools';
 import { TOOL_CATEGORIES, type ToolCategory, type VariaToolManifest } from '@varia/core';
 import { Sparkles, Zap, Shield, HardDriveDownload } from 'lucide-react';
 
+const AudioConverterTool = lazy(() => import('./tools/audio-converter/AudioConverterTool'));
+
+const DEFAULT_TITLE = 'Varia — Minimalist Everyday Digital Toolkit';
+
 const App: React.FC = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<ToolCategory | 'all'>('all');
-  const [activeTool, setActiveTool] = useState<VariaToolManifest | null>(null);
+  const [activeModalTool, setActiveModalTool] = useState<VariaToolManifest | null>(null);
+  const [activeWorkspaceTool, setActiveWorkspaceTool] = useState<VariaToolManifest | null>(null);
+
+  // Helper to find a tool by current path
+  const findToolByPath = useCallback((pathname: string): VariaToolManifest | null => {
+    const cleanPath = pathname.replace(/\/$/, '') || '/';
+    return (
+      REGISTERED_TOOLS.find(
+        t => t.route === cleanPath || t.route === `/tools${cleanPath}` || `/tools/${t.id}` === cleanPath,
+      ) || null
+    );
+  }, []);
+
+  // Handle URL changes & back/forward navigation
+  const syncRouteWithState = useCallback(() => {
+    const currentPath = window.location.pathname;
+    if (currentPath === '/' || currentPath === '') {
+      setActiveWorkspaceTool(null);
+      setActiveModalTool(null);
+      document.title = DEFAULT_TITLE;
+      return;
+    }
+
+    const matchedTool = findToolByPath(currentPath);
+    if (matchedTool) {
+      if (matchedTool.id === 'tool-audio-converter') {
+        setActiveWorkspaceTool(matchedTool);
+        setActiveModalTool(null);
+      } else {
+        setActiveWorkspaceTool(null);
+        setActiveModalTool(matchedTool);
+      }
+      document.title = `${matchedTool.name} — Varia`;
+    } else {
+      setActiveWorkspaceTool(null);
+      setActiveModalTool(null);
+      document.title = DEFAULT_TITLE;
+    }
+  }, [findToolByPath]);
+
+  // Initial load from URL + listen to popstate (browser back/forward)
+  useEffect(() => {
+    syncRouteWithState();
+
+    const handlePopState = () => {
+      syncRouteWithState();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [syncRouteWithState]);
+
+  // Select tool handler (updates URL to /tool-name)
+  const handleSelectTool = (tool: VariaToolManifest) => {
+    window.history.pushState({ toolId: tool.id }, '', tool.route);
+    document.title = `${tool.name} — Varia`;
+
+    if (tool.id === 'tool-audio-converter') {
+      setActiveWorkspaceTool(tool);
+      setActiveModalTool(null);
+    } else {
+      setActiveModalTool(tool);
+    }
+  };
+
+  // Back to Hub handler (updates URL to /)
+  const handleBackToHub = () => {
+    setActiveWorkspaceTool(null);
+    setActiveModalTool(null);
+    window.history.pushState({}, '', '/');
+    document.title = DEFAULT_TITLE;
+  };
 
   const filteredTools =
     selectedCategory === 'all'
@@ -34,6 +110,20 @@ const App: React.FC = () => {
     { id: 'social', label: 'Social & Grabber' },
     { id: 'text', label: 'Text & Docs' },
   ];
+
+  if (activeWorkspaceTool && activeWorkspaceTool.id === 'tool-audio-converter') {
+    return (
+      <Suspense
+        fallback={
+          <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <CircularProgress sx={{ color: '#8b5cf6' }} />
+          </Box>
+        }
+      >
+        <AudioConverterTool onBack={handleBackToHub} />
+      </Suspense>
+    );
+  }
 
   return (
     <Box sx={{ minHeight: '100vh', pb: 10 }}>
@@ -165,7 +255,7 @@ const App: React.FC = () => {
             <ToolCard
               key={tool.id}
               tool={tool}
-              onClick={() => setActiveTool(tool)}
+              onClick={() => handleSelectTool(tool)}
             />
           ))}
         </BentoGrid>
@@ -176,14 +266,14 @@ const App: React.FC = () => {
         tools={REGISTERED_TOOLS}
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
-        onSelectTool={tool => setActiveTool(tool)}
+        onSelectTool={tool => handleSelectTool(tool)}
       />
 
-      {/* Tool Launch Modal */}
-      {activeTool && (
+      {/* Tool Launch Modal (for tools without interactive view yet) */}
+      {activeModalTool && (
         <Dialog
-          open={Boolean(activeTool)}
-          onClose={() => setActiveTool(null)}
+          open={Boolean(activeModalTool)}
+          onClose={handleBackToHub}
           maxWidth="sm"
           fullWidth
           PaperProps={{
@@ -195,26 +285,26 @@ const App: React.FC = () => {
           }}
         >
           <DialogTitle sx={{ fontWeight: 700, pb: 1 }}>
-            {activeTool.name}
+            {activeModalTool.name}
           </DialogTitle>
           <DialogContent>
             <Typography variant="body2" sx={{ color: '#a1a1aa', mb: 2 }}>
-              {activeTool.description}
+              {activeModalTool.description}
             </Typography>
             <GlassCard sx={{ p: 2 }}>
               <Typography variant="caption" sx={{ color: '#8b5cf6', fontWeight: 600, display: 'block', mb: 0.5 }}>
-                Module Route: {activeTool.route}
+                Module Route: {activeModalTool.route}
               </Typography>
               <Typography variant="body2" sx={{ color: '#71717a', fontSize: '0.8rem' }}>
-                Tool này nằm trong module <b>{TOOL_CATEGORIES[activeTool.category]?.name}</b>. Khi chúng ta phát triển chi tiết cho tool này ở các bước tiếp theo, component tương tác đầy đủ sẽ được render tại đây.
+                This tool belongs to the <b>{TOOL_CATEGORIES[activeModalTool.category]?.name}</b> module. When this tool is developed in future steps, its fully interactive workspace component will render here.
               </Typography>
             </GlassCard>
           </DialogContent>
           <DialogActions sx={{ p: 2.5, pt: 0 }}>
-            <Button onClick={() => setActiveTool(null)} variant="outlined">
+            <Button onClick={handleBackToHub} variant="outlined">
               Close
             </Button>
-            <Button onClick={() => setActiveTool(null)} variant="contained">
+            <Button onClick={handleBackToHub} variant="contained">
               Ready to Build
             </Button>
           </DialogActions>

@@ -11,7 +11,8 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     tags: ['audio', 'mp4', 'mp3', 'ffmpeg', 'freeconvert'],
     isOfflineReady: true,
     wasmRequired: true,
-    route: '/tools/audio-converter',
+    route: '/audio-converter',
+    component: () => import('../tools/audio-converter/AudioConverterTool'),
   },
   {
     id: 'tool-gif-studio',
@@ -22,7 +23,7 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     tags: ['gif', 'ezgif', 'video', 'crop', 'optimize'],
     isOfflineReady: true,
     wasmRequired: true,
-    route: '/tools/gif-studio',
+    route: '/gif-studio',
   },
   {
     id: 'tool-image-studio',
@@ -32,7 +33,7 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     icon: 'image',
     tags: ['image', 'webp', 'compress', 'resize'],
     isOfflineReady: true,
-    route: '/tools/image-studio',
+    route: '/image-studio',
   },
 
   // Developer Utilities
@@ -44,7 +45,7 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     icon: 'uuid',
     tags: ['uuid', 'uuidv7', 'ulid', 'nanoid', 'generator'],
     isOfflineReady: true,
-    route: '/tools/uuid-forge',
+    route: '/uuid-forge',
   },
   {
     id: 'tool-jwt-base64',
@@ -54,7 +55,7 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     icon: 'code',
     tags: ['jwt', 'base64', 'auth', 'decoder'],
     isOfflineReady: true,
-    route: '/tools/jwt-base64',
+    route: '/jwt-base64',
   },
   {
     id: 'tool-hash-studio',
@@ -64,7 +65,7 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     icon: 'hash',
     tags: ['hash', 'sha256', 'md5', 'checksum', 'crypto'],
     isOfflineReady: true,
-    route: '/tools/hash-studio',
+    route: '/hash-studio',
   },
   {
     id: 'tool-regex-playground',
@@ -74,7 +75,7 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     icon: 'code',
     tags: ['regex', 'tester', 'pattern', 'syntax'],
     isOfflineReady: true,
-    route: '/tools/regex-playground',
+    route: '/regex-playground',
   },
 
   // Network & Connectivity
@@ -86,7 +87,7 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     icon: 'speed',
     tags: ['speedtest', 'bandwidth', 'ping', 'latency'],
     isOfflineReady: false,
-    route: '/tools/speedtest',
+    route: '/speedtest',
   },
   {
     id: 'tool-ip-inspector',
@@ -96,7 +97,7 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     icon: 'speed',
     tags: ['ip', 'geo', 'isp', 'webrtc'],
     isOfflineReady: false,
-    route: '/tools/ip-inspector',
+    route: '/ip-inspector',
   },
 
   // Social & Downloader
@@ -109,7 +110,7 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     tags: ['social', 'download', 'video', 'ytdlp'],
     isOfflineReady: false,
     requiresServer: true,
-    route: '/tools/social-grabber',
+    route: '/social-grabber',
   },
 
   // Text & Productivity
@@ -121,7 +122,7 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     icon: 'text',
     tags: ['markdown', 'gfm', 'mermaid', 'editor'],
     isOfflineReady: true,
-    route: '/tools/markdown-studio',
+    route: '/markdown-studio',
   },
   {
     id: 'tool-qr-studio',
@@ -131,6 +132,6 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     icon: 'text',
     tags: ['qr', 'qrcode', 'scanner', 'generator'],
     isOfflineReady: true,
-    route: '/tools/qr-studio',
+    route: '/qr-studio',
   },
 ];

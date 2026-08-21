@@ -66,17 +66,31 @@ export const variaThemeOptions: ThemeOptions = {
   components: {
     MuiCssBaseline: {
       styleOverrides: {
+        html: {
+          scrollbarGutter: 'stable',
+          scrollBehavior: 'smooth',
+        },
         body: {
           backgroundColor: colorTokens.bg.base,
           color: colorTokens.text.primary,
-          scrollbarColor: 'rgba(255, 255, 255, 0.15) transparent',
+          scrollbarGutter: 'stable',
+          scrollbarWidth: 'thin',
+          scrollbarColor: 'rgba(255, 255, 255, 0.2) transparent',
           '&::-webkit-scrollbar': {
-            width: '6px',
-            height: '6px',
+            width: '8px',
+            height: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'transparent',
           },
           '&::-webkit-scrollbar-thumb': {
             backgroundColor: 'rgba(255, 255, 255, 0.15)',
-            borderRadius: '4px',
+            borderRadius: '9999px',
+            border: '2px solid transparent',
+            backgroundClip: 'content-box',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            backgroundColor: 'rgba(139, 92, 246, 0.6)',
           },
         },
       },
