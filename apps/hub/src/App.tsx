@@ -27,20 +27,37 @@ const App: React.FC = () => {
   const [activeModalTool, setActiveModalTool] = useState<VariaToolManifest | null>(null);
   const [activeWorkspaceTool, setActiveWorkspaceTool] = useState<VariaToolManifest | null>(null);
 
-  // Helper to find a tool by current path
-  const findToolByPath = useCallback((pathname: string): VariaToolManifest | null => {
-    const cleanPath = pathname.replace(/\/$/, '') || '/';
-    return (
-      REGISTERED_TOOLS.find(
-        t => t.route === cleanPath || t.route === `/tools${cleanPath}` || `/tools/${t.id}` === cleanPath,
-      ) || null
-    );
+  // Helper to extract base path (e.g. /varia on GitHub Pages)
+  const getBasePath = useCallback((): string => {
+    const pathname = window.location.pathname;
+    const match = pathname.match(/^\/([^/]+)/);
+    if (match && match[1] && !REGISTERED_TOOLS.some(t => t.route === `/${match[1]}`)) {
+      return `/${match[1]}`;
+    }
+    return '';
   }, []);
+
+  // Helper to find a tool by current path
+  const findToolByPath = useCallback(
+    (pathname: string): VariaToolManifest | null => {
+      const basePath = getBasePath();
+      const cleanPath = (basePath ? pathname.replace(basePath, '') : pathname).replace(/\/$/, '') || '/';
+      return (
+        REGISTERED_TOOLS.find(
+          t => t.route === cleanPath || t.route === `/tools${cleanPath}` || `/tools/${t.id}` === cleanPath,
+        ) || null
+      );
+    },
+    [getBasePath],
+  );
 
   // Handle URL changes & back/forward navigation
   const syncRouteWithState = useCallback(() => {
     const currentPath = window.location.pathname;
-    if (currentPath === '/' || currentPath === '') {
+    const basePath = getBasePath();
+    const relativePath = (basePath ? currentPath.replace(basePath, '') : currentPath).replace(/\/$/, '') || '/';
+
+    if (relativePath === '/' || relativePath === '') {
       setActiveWorkspaceTool(null);
       setActiveModalTool(null);
       document.title = DEFAULT_TITLE;
@@ -62,7 +79,7 @@ const App: React.FC = () => {
       setActiveModalTool(null);
       document.title = DEFAULT_TITLE;
     }
-  }, [findToolByPath]);
+  }, [findToolByPath, getBasePath]);
 
   // Initial load from URL + listen to popstate (browser back/forward)
   useEffect(() => {
@@ -78,7 +95,8 @@ const App: React.FC = () => {
 
   // Select tool handler (updates URL to /tool-name)
   const handleSelectTool = (tool: VariaToolManifest) => {
-    window.history.pushState({ toolId: tool.id }, '', tool.route);
+    const basePath = getBasePath();
+    window.history.pushState({ toolId: tool.id }, '', `${basePath}${tool.route}`);
     document.title = `${tool.name} — Varia`;
 
     if (tool.id === 'tool-audio-converter') {
@@ -91,9 +109,10 @@ const App: React.FC = () => {
 
   // Back to Hub handler (updates URL to /)
   const handleBackToHub = () => {
+    const basePath = getBasePath();
     setActiveWorkspaceTool(null);
     setActiveModalTool(null);
-    window.history.pushState({}, '', '/');
+    window.history.pushState({}, '', `${basePath}/`);
     document.title = DEFAULT_TITLE;
   };
 
