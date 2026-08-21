@@ -103,8 +103,7 @@ export const YouTubeDownloaderTool: React.FC<YouTubeDownloaderToolProps> = ({ on
           </Stack>
 
           <Typography variant="body1" sx={{ color: '#a1a1aa', maxWidth: 600, mx: 'auto' }}>
-            High-speed media extraction powered by yt-dlp. Download MP4 up to original maximum
-            resolution with H.264 encoder or extract studio-quality MP3 audio.
+            High-speed media extraction powered by yt-dlp.
           </Typography>
         </Box>
 

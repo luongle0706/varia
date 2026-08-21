@@ -113,7 +113,7 @@ export const YouTubeFormatSelector: React.FC<YouTubeFormatSelectorProps> = ({
             Select Video Resolution (Filtered to original {info.maxResolution} max):
           </Typography>
 
-          <Grid container spacing={1.2} sx={{ mb: 3 }}>
+          <Grid container spacing={1.5} sx={{ mb: 3 }}>
             {info.availableResolutions.map(res => {
               const isSelected = selectedResolution === res.quality;
               return (
@@ -121,8 +121,9 @@ export const YouTubeFormatSelector: React.FC<YouTubeFormatSelectorProps> = ({
                   <Box
                     onClick={() => onResolutionChange(res.quality)}
                     sx={{
-                      p: 1.5,
-                      borderRadius: 2.5,
+                      px: { xs: 2, sm: 2.8 },
+                      py: 1.8,
+                      borderRadius: 3,
                       cursor: 'pointer',
                       border: `1.5px solid ${isSelected ? '#ef4444' : 'rgba(255, 255, 255, 0.08)'}`,
                       backgroundColor: isSelected
@@ -164,8 +165,8 @@ export const YouTubeFormatSelector: React.FC<YouTubeFormatSelectorProps> = ({
                         size="small"
                         sx={{
                           position: 'absolute',
-                          top: 6,
-                          right: 6,
+                          top: 8,
+                          right: isSelected ? 40 : 24,
                           height: 18,
                           fontSize: '0.65rem',
                           fontWeight: 700,
@@ -206,8 +207,9 @@ export const YouTubeFormatSelector: React.FC<YouTubeFormatSelectorProps> = ({
                   <Box
                     onClick={() => onCodecChange(codecKey)}
                     sx={{
-                      p: 1.8,
-                      borderRadius: 2.5,
+                      px: { xs: 2, sm: 2.8 },
+                      py: 2,
+                      borderRadius: 3,
                       cursor: 'pointer',
                       border: `1.5px solid ${isSelected ? '#ef4444' : 'rgba(255, 255, 255, 0.08)'}`,
                       backgroundColor: isSelected
@@ -272,8 +274,9 @@ export const YouTubeFormatSelector: React.FC<YouTubeFormatSelectorProps> = ({
                   <Box
                     onClick={() => onBitrateChange(bitrateKey)}
                     sx={{
-                      p: 1.8,
-                      borderRadius: 2.5,
+                      px: { xs: 2, sm: 2.8 },
+                      py: 2,
+                      borderRadius: 3,
                       cursor: 'pointer',
                       border: `1.5px solid ${isSelected ? '#8b5cf6' : 'rgba(255, 255, 255, 0.08)'}`,
                       backgroundColor: isSelected

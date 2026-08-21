@@ -1,7 +1,7 @@
 import React from 'react';
-import { Box, Typography, Chip, Stack } from '@mui/material';
+import { Box, Typography, Stack } from '@mui/material';
 import { type YouTubeVideoInfo } from '@varia/core';
-import { User, Eye, Sparkles } from 'lucide-react';
+import { User, Eye } from 'lucide-react';
 import { GlassCard } from '../GlassCard';
 
 export interface YouTubeMediaCardProps {
@@ -64,21 +64,6 @@ export const YouTubeMediaCard: React.FC<YouTubeMediaCardProps> = ({ info }) => {
 
       {/* Video Details */}
       <Box sx={{ flex: 1, minWidth: 0, width: '100%' }}>
-        <Stack direction="row" spacing={1} alignItems="center" mb={1} flexWrap="wrap" gap={0.5}>
-          <Chip
-            size="small"
-            icon={<Sparkles size={12} color="#10b981" />}
-            label={`Max Quality: ${info.maxResolution}`}
-            sx={{
-              backgroundColor: 'rgba(16, 185, 129, 0.12)',
-              color: '#34d399',
-              border: '1px solid rgba(16, 185, 129, 0.25)',
-              fontWeight: 700,
-              fontSize: '0.75rem',
-            }}
-          />
-        </Stack>
-
         <Typography
           variant="h6"
           sx={{
