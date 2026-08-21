@@ -1,13 +1,5 @@
-import {
-  buildFfmpegAudioArgs,
-  parseFfmpegProgress,
-  SUPPORTED_AUDIO_FORMATS,
-} from '@varia/core';
-import type {
-  WorkerInMessage,
-  WorkerOutMessage,
-  TranscodeRequest,
-} from './types';
+import { buildFfmpegAudioArgs, parseFfmpegProgress, SUPPORTED_AUDIO_FORMATS } from '@varia/core';
+import type { WorkerInMessage, WorkerOutMessage, TranscodeRequest } from './types';
 
 // Minimal interface for Emscripten createFFmpegCore module
 interface FFmpegCoreModule {
@@ -104,7 +96,10 @@ async function initEngine(coreBaseUrl = '/ffmpeg') {
     }
   }
 
-  console.error('[Varia:WASM-Worker] All candidate sources failed to load FFmpeg engine:', lastError);
+  console.error(
+    '[Varia:WASM-Worker] All candidate sources failed to load FFmpeg engine:',
+    lastError,
+  );
   self.postMessage({
     type: 'ENGINE_ERROR',
     error: `Failed to initialize FFmpeg engine: ${lastError?.message || 'Unknown error'}`,
@@ -124,10 +119,13 @@ async function handleTranscode(req: TranscodeRequest) {
   currentJobId = req.jobId;
   isCancelled = false;
 
-  console.log(`[Varia:WASM-Worker] Starting conversion: ${req.inputName} (${req.inputBuffer.byteLength} bytes) -> ${req.options.format.toUpperCase()}`);
+  console.log(
+    `[Varia:WASM-Worker] Starting conversion: ${req.inputName} (${req.inputBuffer.byteLength} bytes) -> ${req.options.format.toUpperCase()}`,
+  );
   console.time(`[Varia:WASM-Worker] Transcode ${req.jobId}`);
 
-  const targetExt = SUPPORTED_AUDIO_FORMATS[req.options.format]?.extension || `.${req.options.format}`;
+  const targetExt =
+    SUPPORTED_AUDIO_FORMATS[req.options.format]?.extension || `.${req.options.format}`;
   const inputExt = req.inputName.slice(req.inputName.lastIndexOf('.')) || '.mp4';
   const virtualInputName = `input_${req.jobId}${inputExt}`;
   const virtualOutputName = `output_${req.jobId}${targetExt}`;
@@ -160,7 +158,12 @@ async function handleTranscode(req: TranscodeRequest) {
     }
 
     // 2. Build FFmpeg command arguments
-    const args = buildFfmpegAudioArgs(virtualInputName, virtualOutputName, req.options, req.durationSeconds);
+    const args = buildFfmpegAudioArgs(
+      virtualInputName,
+      virtualOutputName,
+      req.options,
+      req.durationSeconds,
+    );
     console.log('[Varia:WASM-Worker] Executing FFmpeg command:', args.join(' '));
 
     // 3. Execute conversion
@@ -180,7 +183,10 @@ async function handleTranscode(req: TranscodeRequest) {
 
     // 4. Read output file from virtual filesystem
     const rawOutput = core.FS.readFile(virtualOutputName);
-    const outputBuffer = rawOutput.buffer.slice(rawOutput.byteOffset, rawOutput.byteOffset + rawOutput.byteLength) as ArrayBuffer;
+    const outputBuffer = rawOutput.buffer.slice(
+      rawOutput.byteOffset,
+      rawOutput.byteOffset + rawOutput.byteLength,
+    ) as ArrayBuffer;
 
     safeDelete(virtualInputName);
     safeDelete(virtualOutputName);
@@ -190,7 +196,9 @@ async function handleTranscode(req: TranscodeRequest) {
     const finalOutputName = `${baseName}${formatInfo?.extension || targetExt}`;
 
     console.timeEnd(`[Varia:WASM-Worker] Transcode ${req.jobId}`);
-    console.log(`[Varia:WASM-Worker] Result generated: ${finalOutputName} (${outputBuffer.byteLength} bytes)`);
+    console.log(
+      `[Varia:WASM-Worker] Result generated: ${finalOutputName} (${outputBuffer.byteLength} bytes)`,
+    );
 
     // 5. Transfer result back to main thread
     self.postMessage(

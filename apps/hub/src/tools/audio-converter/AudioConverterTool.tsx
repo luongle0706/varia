@@ -15,16 +15,7 @@ import {
   LinearProgress,
   Alert,
 } from '@mui/material';
-import {
-  ArrowLeft,
-  FileAudio,
-  Sparkles,
-  Zap,
-  Shield,
-  Wand2,
-  X,
-  RotateCcw,
-} from 'lucide-react';
+import { ArrowLeft, FileAudio, Sparkles, Zap, Shield, Wand2, X, RotateCcw } from 'lucide-react';
 import {
   colorTokens,
   MediaDropzone,
@@ -144,7 +135,8 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
                   />
                 </Stack>
                 <Typography variant="caption" sx={{ color: colorTokens.text.secondary }}>
-                  Extract, trim, normalize, boost volume and convert video & audio with multi-threaded WebAssembly
+                  Extract, trim, normalize, boost volume and convert video & audio with
+                  multi-threaded WebAssembly
                 </Typography>
               </Box>
             </Stack>
@@ -170,7 +162,11 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
 
         {/* Error Alert */}
         {errorMessage && (
-          <Alert severity="error" sx={{ mb: 3, borderRadius: 2.5 }} onClose={() => resetActiveSession()}>
+          <Alert
+            severity="error"
+            sx={{ mb: 3, borderRadius: 2.5 }}
+            onClose={() => resetActiveSession()}
+          >
             {errorMessage}
           </Alert>
         )}
@@ -189,8 +185,12 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
                     Universal Format Support
                   </Typography>
                 </Stack>
-                <Typography variant="body2" sx={{ color: colorTokens.text.secondary, fontSize: '0.85rem' }}>
-                  Converts any video container (MP4, MKV, WebM, AVI, MOV, FLV) to pristine MP3, WAV, AAC, OGG, and FLAC without format restrictions.
+                <Typography
+                  variant="body2"
+                  sx={{ color: colorTokens.text.secondary, fontSize: '0.85rem' }}
+                >
+                  Converts any video container (MP4, MKV, WebM, AVI, MOV, FLV) to pristine MP3, WAV,
+                  AAC, OGG, and FLAC without format restrictions.
                 </Typography>
               </GlassCard>
 
@@ -201,8 +201,12 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
                     Zero Cloud Uploads
                   </Typography>
                 </Stack>
-                <Typography variant="body2" sx={{ color: colorTokens.text.secondary, fontSize: '0.85rem' }}>
-                  All decoding and encoding happens directly on your machine inside isolated Web Workers. Your files never touch any server.
+                <Typography
+                  variant="body2"
+                  sx={{ color: colorTokens.text.secondary, fontSize: '0.85rem' }}
+                >
+                  All decoding and encoding happens directly on your machine inside isolated Web
+                  Workers. Your files never touch any server.
                 </Typography>
               </GlassCard>
 
@@ -213,8 +217,12 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
                     Interactive Waveform Trimmer
                   </Typography>
                 </Stack>
-                <Typography variant="body2" sx={{ color: colorTokens.text.secondary, fontSize: '0.85rem' }}>
-                  Cut unwanted intro/outro, apply audio fade curves, and boost quiet audio up to 200% with visual live preview.
+                <Typography
+                  variant="body2"
+                  sx={{ color: colorTokens.text.secondary, fontSize: '0.85rem' }}
+                >
+                  Cut unwanted intro/outro, apply audio fade curves, and boost quiet audio up to
+                  200% with visual live preview.
                 </Typography>
               </GlassCard>
             </Stack>
@@ -223,7 +231,12 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
           /* View Mode 2: Files Loaded in Workspace */
           <Box>
             {/* Mode Switching Tabs */}
-            <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" mb={3}>
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              justifyContent="space-between"
+              alignItems="center"
+              mb={3}
+            >
               <Tabs
                 value={tabIndex}
                 onChange={(_, v) => setTabIndex(v)}
@@ -266,8 +279,17 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
 
               {/* Quick file switcher in Studio mode */}
               {tabIndex === 0 && queue.length > 1 && (
-                <Stack direction="row" spacing={1} alignItems="center" mt={{ xs: 1.5, sm: 0 }} overflow="auto">
-                  <Typography variant="caption" sx={{ color: colorTokens.text.muted, whiteSpace: 'nowrap' }}>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  alignItems="center"
+                  mt={{ xs: 1.5, sm: 0 }}
+                  overflow="auto"
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{ color: colorTokens.text.muted, whiteSpace: 'nowrap' }}
+                  >
                     Active File:
                   </Typography>
                   {queue.map(item => (
@@ -280,8 +302,11 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
                         fontSize: '0.75rem',
                         fontWeight: item.id === activeItem?.id ? 700 : 500,
                         backgroundColor:
-                          item.id === activeItem?.id ? 'rgba(139, 92, 246, 0.25)' : 'rgba(255, 255, 255, 0.04)',
-                        borderColor: item.id === activeItem?.id ? colorTokens.accent.violet : 'transparent',
+                          item.id === activeItem?.id
+                            ? 'rgba(139, 92, 246, 0.25)'
+                            : 'rgba(255, 255, 255, 0.04)',
+                        borderColor:
+                          item.id === activeItem?.id ? colorTokens.accent.violet : 'transparent',
                         borderWidth: 1,
                         borderStyle: 'solid',
                         maxWidth: 160,
@@ -311,7 +336,10 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
 
                 {/* Active File Header */}
                 {activeItem && (
-                  <Box mb={2} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box
+                    mb={2}
+                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                  >
                     <Stack direction="row" spacing={1} alignItems="center">
                       <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                         {activeItem.name}
@@ -344,7 +372,13 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
                 />
 
                 {/* Convert Button CTA */}
-                <Stack direction="row" spacing={2} justifyContent="flex-end" alignItems="center" mt={3}>
+                <Stack
+                  direction="row"
+                  spacing={2}
+                  justifyContent="flex-end"
+                  alignItems="center"
+                  mt={3}
+                >
                   <Button
                     variant="contained"
                     size="large"
@@ -448,11 +482,7 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
 
             <LinearProgress
               variant="determinate"
-              value={
-                engineLoading
-                  ? engineLoadProgress
-                  : activeItem?.progress || 35
-              }
+              value={engineLoading ? engineLoadProgress : activeItem?.progress || 35}
               sx={{
                 height: 8,
                 borderRadius: 4,

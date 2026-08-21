@@ -14,7 +14,7 @@ graph TD
 
     subgraph "Apps Layer (apps/*)"
         Hub["🌐 apps/hub<br/><b>Varia Launchpad</b><br/>(Bento Grid, Spotlight Search, Category Filter)"]
-        
+
         subgraph "Mini Applications (Independent Modules)"
             Cat1["🎞️ Media Studio (GIF, Audio, Image, SVG)"]
             Cat2["🛠️ Dev Utilities (UUID, JWT, Hash, RegEx, JSON)"]
@@ -66,13 +66,14 @@ export interface VariaToolManifest<TComponent = unknown> {
 
 ## 🎨 3. Custom Material UI Design System (`@varia/ui`)
 
-* **Deep Obsidian / Zinc Palette**: Background `#09090b`, Card Surface `#18181b` with subtle glowing borders `rgba(255, 255, 255, 0.08)`.
-* **Glassmorphism Effects**: `backdrop-filter: blur(16px)` on AppBar, Modals, and Bento Cards.
-* **Typography**: `Plus Jakarta Sans` for primary UI elements, `JetBrains Mono` / monospace for Code, UUIDs, and Base64 strings.
-* **Bento Grid**: Modular, responsive card layout powering the Hub launchpad at `apps/hub`.
+- **Deep Obsidian / Zinc Palette**: Background `#09090b`, Card Surface `#18181b` with subtle glowing borders `rgba(255, 255, 255, 0.08)`.
+- **Glassmorphism Effects**: `backdrop-filter: blur(16px)` on AppBar, Modals, and Bento Cards.
+- **Typography**: `Plus Jakarta Sans` for primary UI elements, `JetBrains Mono` / monospace for Code, UUIDs, and Base64 strings.
+- **Bento Grid**: Modular, responsive card layout powering the Hub launchpad at `apps/hub`.
 
 ---
 
 ## 📚 Related Documentation
-* 🧰 **Detailed 20+ Mini-Tools Catalog:** [docs/TOOL_CATALOG.md](./TOOL_CATALOG.md)
-* 🏆 **Engineering Standards & CI/CD:** [docs/ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md)
+
+- 🧰 **Detailed 20+ Mini-Tools Catalog:** [docs/TOOL_CATALOG.md](./TOOL_CATALOG.md)
+- 🏆 **Engineering Standards & CI/CD:** [docs/ENGINEERING_STANDARDS.md](./ENGINEERING_STANDARDS.md)

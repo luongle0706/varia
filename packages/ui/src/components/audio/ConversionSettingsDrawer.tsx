@@ -107,7 +107,12 @@ export const ConversionSettingsDrawer: React.FC<ConversionSettingsDrawerProps> =
       }}
     >
       {/* Title & Presets */}
-      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" mb={2.5}>
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2.5}
+      >
         <Stack direction="row" spacing={1} alignItems="center">
           <Settings2 size={18} color={colorTokens.accent.violet} />
           <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
@@ -155,7 +160,10 @@ export const ConversionSettingsDrawer: React.FC<ConversionSettingsDrawerProps> =
 
       {/* Target Format Pills */}
       <Box mb={2.5}>
-        <Typography variant="caption" sx={{ color: colorTokens.text.secondary, display: 'block', mb: 1, fontWeight: 600 }}>
+        <Typography
+          variant="caption"
+          sx={{ color: colorTokens.text.secondary, display: 'block', mb: 1, fontWeight: 600 }}
+        >
           TARGET AUDIO FORMAT
         </Typography>
         <Stack direction="row" spacing={1} flexWrap="wrap">
@@ -174,7 +182,9 @@ export const ConversionSettingsDrawer: React.FC<ConversionSettingsDrawerProps> =
                   fontSize: '0.85rem',
                   fontWeight: 700,
                   borderRadius: 2,
-                  backgroundColor: isSelected ? colorTokens.accent.violet : 'rgba(255, 255, 255, 0.04)',
+                  backgroundColor: isSelected
+                    ? colorTokens.accent.violet
+                    : 'rgba(255, 255, 255, 0.04)',
                   color: isSelected ? '#ffffff' : colorTokens.text.secondary,
                   border: `1px solid ${isSelected ? colorTokens.accent.violet : 'rgba(255, 255, 255, 0.06)'}`,
                   '&:hover': {
@@ -191,11 +201,21 @@ export const ConversionSettingsDrawer: React.FC<ConversionSettingsDrawerProps> =
       {['mp3', 'aac', 'ogg'].includes(options.format) && (
         <Box mb={2.5}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-            <Typography variant="caption" sx={{ color: colorTokens.text.secondary, fontWeight: 600 }}>
+            <Typography
+              variant="caption"
+              sx={{ color: colorTokens.text.secondary, fontWeight: 600 }}
+            >
               AUDIO BITRATE ({options.bitrate?.toUpperCase() || '192K'})
             </Typography>
-            <Typography variant="caption" sx={{ color: colorTokens.accent.violet, fontWeight: 600 }}>
-              {options.bitrate === '320k' ? 'Audiophile Master' : options.bitrate === '192k' ? 'High Quality' : 'Standard'}
+            <Typography
+              variant="caption"
+              sx={{ color: colorTokens.accent.violet, fontWeight: 600 }}
+            >
+              {options.bitrate === '320k'
+                ? 'Audiophile Master'
+                : options.bitrate === '192k'
+                  ? 'High Quality'
+                  : 'Standard'}
             </Typography>
           </Stack>
           <Stack direction="row" spacing={1} flexWrap="wrap">
@@ -211,7 +231,9 @@ export const ConversionSettingsDrawer: React.FC<ConversionSettingsDrawerProps> =
                   size="small"
                   sx={{
                     borderRadius: 1.5,
-                    backgroundColor: isSelected ? 'rgba(139, 92, 246, 0.2)' : 'rgba(255, 255, 255, 0.03)',
+                    backgroundColor: isSelected
+                      ? 'rgba(139, 92, 246, 0.2)'
+                      : 'rgba(255, 255, 255, 0.03)',
                     color: isSelected ? '#a78bfa' : colorTokens.text.muted,
                     border: `1px solid ${isSelected ? 'rgba(139, 92, 246, 0.4)' : 'rgba(255, 255, 255, 0.05)'}`,
                     fontWeight: 600,
@@ -249,13 +271,20 @@ export const ConversionSettingsDrawer: React.FC<ConversionSettingsDrawerProps> =
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={0.5}>
               <Stack direction="row" spacing={0.8} alignItems="center">
                 <Volume2 size={14} color={colorTokens.accent.cyan} />
-                <Typography variant="caption" sx={{ color: colorTokens.text.secondary, fontWeight: 600 }}>
+                <Typography
+                  variant="caption"
+                  sx={{ color: colorTokens.text.secondary, fontWeight: 600 }}
+                >
                   Volume Boost
                 </Typography>
               </Stack>
-              <Typography variant="caption" sx={{ color: colorTokens.accent.cyan, fontWeight: 700 }}>
+              <Typography
+                variant="caption"
+                sx={{ color: colorTokens.accent.cyan, fontWeight: 700 }}
+              >
                 {Math.round((options.volumeBoost ?? 1.0) * 100)}%
-                {(options.volumeBoost ?? 1.0) > 1.0 && ` (+${(((options.volumeBoost ?? 1.0) - 1.0) * 6).toFixed(1)} dB)`}
+                {(options.volumeBoost ?? 1.0) > 1.0 &&
+                  ` (+${(((options.volumeBoost ?? 1.0) - 1.0) * 6).toFixed(1)} dB)`}
               </Typography>
             </Stack>
             <Slider
@@ -273,7 +302,10 @@ export const ConversionSettingsDrawer: React.FC<ConversionSettingsDrawerProps> =
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3} mb={2.5}>
             <Box sx={{ flex: 1 }}>
               <Stack direction="row" justifyContent="space-between" alignItems="center" mb={0.5}>
-                <Typography variant="caption" sx={{ color: colorTokens.text.secondary, fontWeight: 600 }}>
+                <Typography
+                  variant="caption"
+                  sx={{ color: colorTokens.text.secondary, fontWeight: 600 }}
+                >
                   Fade In Duration
                 </Typography>
                 <Typography variant="caption" sx={{ fontWeight: 700 }}>
@@ -293,7 +325,10 @@ export const ConversionSettingsDrawer: React.FC<ConversionSettingsDrawerProps> =
 
             <Box sx={{ flex: 1 }}>
               <Stack direction="row" justifyContent="space-between" alignItems="center" mb={0.5}>
-                <Typography variant="caption" sx={{ color: colorTokens.text.secondary, fontWeight: 600 }}>
+                <Typography
+                  variant="caption"
+                  sx={{ color: colorTokens.text.secondary, fontWeight: 600 }}
+                >
                   Fade Out Duration
                 </Typography>
                 <Typography variant="caption" sx={{ fontWeight: 700 }}>
@@ -315,14 +350,24 @@ export const ConversionSettingsDrawer: React.FC<ConversionSettingsDrawerProps> =
           {/* Sample Rate & Channels */}
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <Box sx={{ flex: 1 }}>
-              <Typography variant="caption" sx={{ color: colorTokens.text.secondary, display: 'block', mb: 0.8, fontWeight: 600 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: colorTokens.text.secondary,
+                  display: 'block',
+                  mb: 0.8,
+                  fontWeight: 600,
+                }}
+              >
                 Sample Rate
               </Typography>
               <FormControl size="small" fullWidth>
                 <Select
                   value={options.sampleRate ?? 0}
                   disabled={disabled}
-                  onChange={e => onChange({ ...options, sampleRate: Number(e.target.value) || undefined })}
+                  onChange={e =>
+                    onChange({ ...options, sampleRate: Number(e.target.value) || undefined })
+                  }
                   sx={{
                     backgroundColor: 'rgba(255, 255, 255, 0.03)',
                     borderRadius: 2,
@@ -339,7 +384,15 @@ export const ConversionSettingsDrawer: React.FC<ConversionSettingsDrawerProps> =
             </Box>
 
             <Box sx={{ flex: 1 }}>
-              <Typography variant="caption" sx={{ color: colorTokens.text.secondary, display: 'block', mb: 0.8, fontWeight: 600 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  color: colorTokens.text.secondary,
+                  display: 'block',
+                  mb: 0.8,
+                  fontWeight: 600,
+                }}
+              >
                 Audio Channels
               </Typography>
               <ToggleButtonGroup

@@ -92,7 +92,10 @@ describe('Media Utilities', () => {
       expect(flacArgs).toContain('-c:a');
       expect(flacArgs).toContain('flac');
 
-      const aacArgs = buildFfmpegAudioArgs('input.mp4', 'output.aac', { format: 'aac', bitrate: '256k' });
+      const aacArgs = buildFfmpegAudioArgs('input.mp4', 'output.aac', {
+        format: 'aac',
+        bitrate: '256k',
+      });
       expect(aacArgs).toContain('-c:a');
       expect(aacArgs).toContain('aac');
       expect(aacArgs).toContain('256k');

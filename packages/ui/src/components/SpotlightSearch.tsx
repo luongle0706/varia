@@ -110,7 +110,10 @@ export const SpotlightSearch: React.FC<SpotlightSearchProps> = ({
 
         <Box sx={{ mt: 1.5, maxHeight: 340, overflowY: 'auto' }}>
           {filteredTools.length === 0 ? (
-            <Typography variant="body2" sx={{ p: 3, textAlign: 'center', color: colorTokens.text.muted }}>
+            <Typography
+              variant="body2"
+              sx={{ p: 3, textAlign: 'center', color: colorTokens.text.muted }}
+            >
               No tools matching &quot;{query}&quot;
             </Typography>
           ) : (

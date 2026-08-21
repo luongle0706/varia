@@ -22,7 +22,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, toolCount })
         zIndex: 100,
       }}
     >
-      <Stack direction="row" justifyContent="space-between" alignItems="center" maxWidth="1400px" mx="auto">
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        maxWidth="1400px"
+        mx="auto"
+      >
         {/* Logo */}
         <Stack direction="row" spacing={1.5} alignItems="center">
           <Box
@@ -41,7 +47,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, toolCount })
           </Box>
           <Box>
             <Stack direction="row" spacing={1} alignItems="center">
-              <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em' }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em' }}
+              >
                 VARIA
               </Typography>
               {typeof toolCount === 'number' && (

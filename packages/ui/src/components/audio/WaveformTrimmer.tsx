@@ -30,7 +30,9 @@ export const WaveformTrimmer: React.FC<WaveformTrimmerProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(trimStart);
   const [isDragging, setIsDragging] = useState<'start' | 'end' | 'scrub' | null>(null);
-  const [hoverCursor, setHoverCursor] = useState<'default' | 'ew-resize' | 'crosshair'>('crosshair');
+  const [hoverCursor, setHoverCursor] = useState<'default' | 'ew-resize' | 'crosshair'>(
+    'crosshair',
+  );
 
   // Sync audio element with audioUrl
   useEffect(() => {
@@ -78,7 +80,10 @@ export const WaveformTrimmer: React.FC<WaveformTrimmerProps> = ({
       if (audio.currentTime < trimStart || audio.currentTime >= trimEnd) {
         audio.currentTime = trimStart;
       }
-      audio.play().then(() => setIsPlaying(true)).catch(() => {});
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {});
     }
   };
 
@@ -345,7 +350,11 @@ export const WaveformTrimmer: React.FC<WaveformTrimmerProps> = ({
             }}
           />
           <Tooltip title="Reset Trim Region">
-            <IconButton size="small" onClick={handleResetTrim} sx={{ color: colorTokens.text.secondary }}>
+            <IconButton
+              size="small"
+              onClick={handleResetTrim}
+              sx={{ color: colorTokens.text.secondary }}
+            >
               <RotateCcw size={16} />
             </IconButton>
           </Tooltip>
@@ -405,10 +414,16 @@ export const WaveformTrimmer: React.FC<WaveformTrimmerProps> = ({
 
         <Stack direction="row" spacing={2} alignItems="center">
           <Box sx={{ textAlign: 'right' }}>
-            <Typography variant="caption" sx={{ color: colorTokens.text.secondary, display: 'block' }}>
+            <Typography
+              variant="caption"
+              sx={{ color: colorTokens.text.secondary, display: 'block' }}
+            >
               Start: <b>{formatTimecode(trimStart, true)}</b>
             </Typography>
-            <Typography variant="caption" sx={{ color: colorTokens.text.secondary, display: 'block' }}>
+            <Typography
+              variant="caption"
+              sx={{ color: colorTokens.text.secondary, display: 'block' }}
+            >
               End: <b>{formatTimecode(trimEnd, true)}</b>
             </Typography>
           </Box>

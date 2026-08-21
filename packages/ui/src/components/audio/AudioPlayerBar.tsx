@@ -56,7 +56,10 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
       audio.pause();
       setIsPlaying(false);
     } else {
-      audio.play().then(() => setIsPlaying(true)).catch(() => {});
+      audio
+        .play()
+        .then(() => setIsPlaying(true))
+        .catch(() => {});
     }
   };
 
@@ -83,7 +86,12 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
         boxShadow: '0 8px 32px rgba(16, 185, 129, 0.08)',
       }}
     >
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} justifyContent="space-between" alignItems="center">
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        spacing={2}
+        justifyContent="space-between"
+        alignItems="center"
+      >
         {/* Left: File Metadata */}
         <Stack direction="row" spacing={1.5} alignItems="center">
           <Box
@@ -125,7 +133,12 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
         </Stack>
 
         {/* Center: Audio Player Controls */}
-        <Stack direction="row" spacing={2} alignItems="center" sx={{ width: { xs: '100%', md: '45%' } }}>
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          sx={{ width: { xs: '100%', md: '45%' } }}
+        >
           <IconButton
             onClick={togglePlay}
             sx={{
@@ -162,7 +175,10 @@ export const AudioPlayerBar: React.FC<AudioPlayerBarProps> = ({
             }}
           />
 
-          <Typography variant="caption" sx={{ fontFamily: 'monospace', minWidth: 40, color: colorTokens.text.muted }}>
+          <Typography
+            variant="caption"
+            sx={{ fontFamily: 'monospace', minWidth: 40, color: colorTokens.text.muted }}
+          >
             {formatTimecode(duration)}
           </Typography>
         </Stack>

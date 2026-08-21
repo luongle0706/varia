@@ -216,7 +216,9 @@ export function buildFfmpegAudioArgs(
 
     if (typeof effectiveDuration === 'number' && effectiveDuration > options.fadeOut) {
       const fadeOutStart = effectiveDuration - options.fadeOut;
-      audioFilters.push(`afade=t=out:st=${fadeOutStart.toFixed(2)}:d=${options.fadeOut.toFixed(2)}`);
+      audioFilters.push(
+        `afade=t=out:st=${fadeOutStart.toFixed(2)}:d=${options.fadeOut.toFixed(2)}`,
+      );
     }
   }
 

@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { formatBytes, formatDuration, toCamelCase, toSnakeCase, toKebabCase, toPascalCase } from '../src/format';
+import {
+  formatBytes,
+  formatDuration,
+  toCamelCase,
+  toSnakeCase,
+  toKebabCase,
+  toPascalCase,
+} from '../src/format';
 
 describe('Format Utilities', () => {
   it('should format bytes properly', () => {
