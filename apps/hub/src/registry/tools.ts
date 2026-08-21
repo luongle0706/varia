@@ -12,6 +12,7 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
     isOfflineReady: true,
     wasmRequired: true,
     route: '/tools/audio-converter',
+    component: () => import('../tools/audio-converter/AudioConverterTool'),
   },
   {
     id: 'tool-gif-studio',
