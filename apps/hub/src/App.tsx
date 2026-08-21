@@ -206,7 +206,7 @@ const App: React.FC = () => {
                 Module Route: {activeTool.route}
               </Typography>
               <Typography variant="body2" sx={{ color: '#71717a', fontSize: '0.8rem' }}>
-                Tool này nằm trong module <b>{TOOL_CATEGORIES[activeTool.category]?.name}</b>. Khi chúng ta phát triển chi tiết cho tool này ở các bước tiếp theo, component tương tác đầy đủ sẽ được render tại đây.
+                This tool belongs to the <b>{TOOL_CATEGORIES[activeTool.category]?.name}</b> module. When this tool is developed in future steps, its fully interactive workspace component will render here.
               </Typography>
             </GlassCard>
           </DialogContent>

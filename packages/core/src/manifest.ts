@@ -1,8 +1,6 @@
-import type { ComponentType } from 'react';
-
 export type ToolCategory = 'media' | 'dev' | 'network' | 'social' | 'text';
 
-export interface VariaToolManifest {
+export interface VariaToolManifest<TComponent = unknown> {
   id: string;
   name: string;
   description: string;
@@ -13,7 +11,7 @@ export interface VariaToolManifest {
   requiresServer?: boolean;
   wasmRequired?: boolean;
   route: string;
-  component?: () => Promise<{ default: ComponentType<any> }>;
+  component?: () => Promise<{ default: TComponent }>;
 }
 
 export interface CategoryMetadata {

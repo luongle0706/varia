@@ -21,10 +21,11 @@ export async function hashBuffer(
   algorithm: HashAlgorithm = 'SHA-256',
 ): Promise<string> {
   if (algorithm === 'MD5') {
-    return md5(new Uint8Array(buffer));
+    const uint8 = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+    return md5(uint8);
   }
 
-  const hashBuffer = await crypto.subtle.digest(algorithm, buffer);
+  const hashBuffer = await crypto.subtle.digest(algorithm, buffer as unknown as BufferSource);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }

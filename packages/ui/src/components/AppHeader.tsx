@@ -40,9 +40,27 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, toolCount })
             <Sparkles size={20} color="#ffffff" />
           </Box>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em' }}>
-              VARIA
-            </Typography>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.02em' }}>
+                VARIA
+              </Typography>
+              {typeof toolCount === 'number' && (
+                <Box
+                  sx={{
+                    backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                    color: '#a78bfa',
+                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                    borderRadius: '999px',
+                    px: 1,
+                    py: 0.1,
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                  }}
+                >
+                  {toolCount} Tools
+                </Box>
+              )}
+            </Stack>
           </Box>
         </Stack>
 
