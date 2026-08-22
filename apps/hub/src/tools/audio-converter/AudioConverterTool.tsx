@@ -5,7 +5,6 @@ import {
   Typography,
   Stack,
   Button,
-  IconButton,
   Chip,
   Tabs,
   Tab,
@@ -66,99 +65,77 @@ export const AudioConverterTool: React.FC<AudioConverterToolProps> = ({ onBack }
   return (
     <Box sx={{ minHeight: '100vh', pb: 12, pt: 3 }}>
       <Container maxWidth="lg">
-        {/* Navigation / Header Row */}
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            {onBack && (
-              <IconButton
-                onClick={onBack}
-                sx={{
-                  border: `1px solid ${colorTokens.bg.border}`,
-                  borderRadius: 2.5,
-                  p: 1.2,
-                  color: colorTokens.text.secondary,
-                  backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                  '&:hover': {
-                    borderColor: colorTokens.accent.violet,
-                    color: colorTokens.text.primary,
-                  },
-                }}
-              >
-                <ArrowLeft size={20} />
-              </IconButton>
-            )}
-
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Box
-                sx={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 3,
-                  background: 'linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 0 24px rgba(236, 72, 153, 0.35)',
-                }}
-              >
-                <FileAudio size={24} color="#ffffff" />
-              </Box>
-
-              <Box>
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <Typography variant="h5" sx={{ fontWeight: 800, letterSpacing: '-0.02em' }}>
-                    Audio Studio & MP4 to MP3
-                  </Typography>
-                  <Chip
-                    label="WASM"
-                    size="small"
-                    sx={{
-                      height: 20,
-                      fontSize: '0.65rem',
-                      fontWeight: 700,
-                      backgroundColor: 'rgba(236, 72, 153, 0.15)',
-                      color: '#ec4899',
-                      border: '1px solid rgba(236, 72, 153, 0.3)',
-                    }}
-                  />
-                  <Chip
-                    label="100% Client-Side"
-                    size="small"
-                    sx={{
-                      height: 20,
-                      fontSize: '0.65rem',
-                      fontWeight: 700,
-                      backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                      color: '#10b981',
-                      border: '1px solid rgba(16, 185, 129, 0.25)',
-                    }}
-                  />
-                </Stack>
-                <Typography variant="caption" sx={{ color: colorTokens.text.secondary }}>
-                  Extract, trim, normalize, boost volume and convert video & audio with
-                  multi-threaded WebAssembly
-                </Typography>
-              </Box>
-            </Stack>
-          </Stack>
+        {/* Navigation Bar */}
+        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={4}>
+          {onBack && (
+            <Button
+              startIcon={<ArrowLeft size={18} />}
+              onClick={onBack}
+              sx={{
+                color: '#a1a1aa',
+                fontWeight: 600,
+                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: 2.5,
+                px: 2,
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  color: '#ffffff',
+                },
+              }}
+            >
+              Back to Launchpad
+            </Button>
+          )}
 
           {queue.length > 0 && (
             <Button
-              variant="outlined"
-              size="small"
-              startIcon={<RotateCcw size={14} />}
+              startIcon={<RotateCcw size={16} />}
               onClick={clearQueue}
               sx={{
-                borderRadius: 2,
-                color: colorTokens.text.secondary,
-                borderColor: colorTokens.bg.border,
-                fontSize: '0.75rem',
+                color: '#71717a',
+                fontSize: '0.85rem',
+                '&:hover': { color: '#ec4899' },
               }}
             >
               Start New
             </Button>
           )}
         </Stack>
+
+        {/* Header Title */}
+        <Box sx={{ mb: 4, textAlign: 'center' }}>
+          <Stack direction="row" spacing={1.5} alignItems="center" justifyContent="center" mb={1}>
+            <Box
+              sx={{
+                p: 1,
+                borderRadius: 2,
+                backgroundColor: 'rgba(236, 72, 153, 0.15)',
+                border: '1px solid rgba(236, 72, 153, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <FileAudio size={26} color="#ec4899" />
+            </Box>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 800,
+                fontSize: { xs: '1.8rem', md: '2.4rem' },
+                letterSpacing: '-0.025em',
+                color: '#f4f4f5',
+              }}
+            >
+              Audio Studio & MP4 to MP3
+            </Typography>
+          </Stack>
+
+          <Typography variant="body1" sx={{ color: '#a1a1aa', maxWidth: 600, mx: 'auto' }}>
+            Client-side audio extraction, custom bitrates, volume boost, and trimming.
+          </Typography>
+        </Box>
 
         {/* Error Alert */}
         {errorMessage && (

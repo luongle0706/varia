@@ -5,10 +5,10 @@ import { colorTokens } from '../theme/tokens';
 
 export interface AppHeaderProps {
   onOpenSearch: () => void;
-  toolCount: number;
+  toolCount?: number;
 }
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, toolCount }) => {
+export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
   return (
     <Box
       sx={{

@@ -8,6 +8,8 @@ import {
   isValidYouTubeUrl,
 } from '@varia/core';
 
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || '';
+
 export interface UseYouTubeDownloaderReturn {
   // State
   url: string;
@@ -57,13 +59,13 @@ export function useYouTubeDownloader(): UseYouTubeDownloaderReturn {
     };
   }, []);
 
-  // Check health status of local companion server on mount
+  // Check health status of companion server on mount
   useEffect(() => {
     let isMounted = true;
 
     async function checkHealth() {
       try {
-        const res = await fetch('/api/health');
+        const res = await fetch(`${API_BASE}/api/health`);
         if (isMounted) {
           setIsServerOnline(res.ok);
         }
@@ -95,7 +97,7 @@ export function useYouTubeDownloader(): UseYouTubeDownloaderReturn {
       console.log(`[Varia:YouTubeDownloader] Fetching metadata for: ${targetUrl}`);
 
       try {
-        const res = await fetch(`/api/youtube/info?url=${encodeURIComponent(targetUrl)}`);
+        const res = await fetch(`${API_BASE}/api/youtube/info?url=${encodeURIComponent(targetUrl)}`);
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
           throw new Error(errData.error || `Server responded with ${res.status}`);
@@ -114,7 +116,7 @@ export function useYouTubeDownloader(): UseYouTubeDownloaderReturn {
         const msg = err instanceof Error ? err.message : String(err);
         if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
           setIsServerOnline(false);
-          setErrorMessage('Local companion engine is not active. Please run pnpm dev locally.');
+          setErrorMessage('Companion engine is not active. Please run pnpm dev locally or connect a server.');
         } else {
           setErrorMessage(msg);
         }
@@ -142,7 +144,7 @@ export function useYouTubeDownloader(): UseYouTubeDownloaderReturn {
 
     try {
       // 1. Request server to start background job
-      const startRes = await fetch('/api/youtube/download/start', {
+      const startRes = await fetch(`${API_BASE}/api/youtube/download/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -167,7 +169,7 @@ export function useYouTubeDownloader(): UseYouTubeDownloaderReturn {
         eventSourceRef.current.close();
       }
 
-      const es = new EventSource(`/api/youtube/download/progress?jobId=${jobId}`);
+      const es = new EventSource(`${API_BASE}/api/youtube/download/progress?jobId=${jobId}`);
       eventSourceRef.current = es;
 
       es.onmessage = event => {
@@ -181,7 +183,10 @@ export function useYouTubeDownloader(): UseYouTubeDownloaderReturn {
 
             // Trigger browser download of the completed file
             const link = document.createElement('a');
-            link.href = data.downloadUrl;
+            const finalUrl = data.downloadUrl.startsWith('http')
+              ? data.downloadUrl
+              : `${API_BASE}${data.downloadUrl}`;
+            link.href = finalUrl;
             link.setAttribute('download', '');
             document.body.appendChild(link);
             link.click();

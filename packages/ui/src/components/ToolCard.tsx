@@ -13,7 +13,6 @@ import {
   FileText,
   Key,
   ShieldCheck,
-  Cpu,
 } from 'lucide-react';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
@@ -55,7 +54,8 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onClick }) => {
         position: 'relative',
         overflow: 'hidden',
         transform: 'translateZ(0)',
-        transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease',
+        transition:
+          'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease',
         willChange: 'transform',
         '&:hover': {
           borderColor: colorTokens.bg.borderHover,
@@ -102,30 +102,29 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onClick }) => {
           </Box>
 
           <Stack direction="row" spacing={0.8} alignItems="center">
-            {tool.isOfflineReady && (
+            {tool.status === 'beta' && (
               <Chip
-                label="Offline"
+                label="Beta"
                 size="small"
                 sx={{
                   height: 20,
                   fontSize: '0.65rem',
-                  backgroundColor: 'rgba(16, 185, 129, 0.12)',
-                  color: '#10b981',
-                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                  backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                  color: '#a78bfa',
+                  border: '1px solid rgba(139, 92, 246, 0.25)',
                 }}
               />
             )}
-            {tool.wasmRequired && (
+            {tool.status === 'coming-soon' && (
               <Chip
-                icon={<Cpu size={11} style={{ marginLeft: 4 }} />}
-                label="WASM"
+                label="Coming Soon"
                 size="small"
                 sx={{
                   height: 20,
                   fontSize: '0.65rem',
-                  backgroundColor: 'rgba(236, 72, 153, 0.12)',
-                  color: '#ec4899',
-                  border: '1px solid rgba(236, 72, 153, 0.25)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                  color: colorTokens.text.muted,
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                 }}
               />
             )}
