@@ -1,5 +1,6 @@
 import type {
   AudioConversionOptions,
+  GifConversionOptions,
   EngineLoadProgress,
   TranscodeProgress,
   TranscodeResult,
@@ -10,13 +11,20 @@ export type {
   TranscodeProgress,
   TranscodeResult,
   BatchItem,
+  GifConversionOptions,
+  GifCropRegion,
+  GifScalePreset,
+  GifDitherMode,
+  StructuredError,
 } from '@varia/core';
 
 export interface TranscodeRequest {
   jobId: string;
   inputBuffer: ArrayBuffer;
   inputName: string;
-  options: AudioConversionOptions;
+  mode?: 'audio' | 'gif';
+  options?: AudioConversionOptions;
+  gifOptions?: GifConversionOptions;
   durationSeconds?: number;
 }
 

@@ -8,3 +8,4 @@ export * from './components/SpotlightSearch';
 export * from './components/AppHeader';
 export * from './components/audio';
 export * from './components/youtube';
+export * from './components/gif';

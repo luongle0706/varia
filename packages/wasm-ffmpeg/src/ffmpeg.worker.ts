@@ -1,4 +1,9 @@
-import { buildFfmpegAudioArgs, parseFfmpegProgress, SUPPORTED_AUDIO_FORMATS } from '@varia/core';
+import {
+  buildFfmpegAudioArgs,
+  buildFfmpegGifArgs,
+  parseFfmpegProgress,
+  SUPPORTED_AUDIO_FORMATS,
+} from '@varia/core';
 import type { WorkerInMessage, WorkerOutMessage, TranscodeRequest } from './types';
 
 // Minimal interface for Emscripten createFFmpegCore module
@@ -119,13 +124,16 @@ async function handleTranscode(req: TranscodeRequest) {
   currentJobId = req.jobId;
   isCancelled = false;
 
+  const isGifMode = req.mode === 'gif' || Boolean(req.gifOptions);
+  const targetExt = isGifMode
+    ? '.gif'
+    : (req.options && SUPPORTED_AUDIO_FORMATS[req.options.format]?.extension) || '.mp3';
+
   console.log(
-    `[Varia:WASM-Worker] Starting conversion: ${req.inputName} (${req.inputBuffer.byteLength} bytes) -> ${req.options.format.toUpperCase()}`,
+    `[Varia:WASM-Worker] Starting conversion: ${req.inputName} (${req.inputBuffer.byteLength} bytes) -> ${isGifMode ? 'GIF' : req.options?.format.toUpperCase()}`,
   );
   console.time(`[Varia:WASM-Worker] Transcode ${req.jobId}`);
 
-  const targetExt =
-    SUPPORTED_AUDIO_FORMATS[req.options.format]?.extension || `.${req.options.format}`;
   const inputExt = req.inputName.slice(req.inputName.lastIndexOf('.')) || '.mp4';
   const virtualInputName = `input_${req.jobId}${inputExt}`;
   const virtualOutputName = `output_${req.jobId}${targetExt}`;
@@ -158,12 +166,20 @@ async function handleTranscode(req: TranscodeRequest) {
     }
 
     // 2. Build FFmpeg command arguments
-    const args = buildFfmpegAudioArgs(
-      virtualInputName,
-      virtualOutputName,
-      req.options,
-      req.durationSeconds,
-    );
+    const args = isGifMode
+      ? buildFfmpegGifArgs(
+          virtualInputName,
+          virtualOutputName,
+          req.gifOptions || {},
+          req.durationSeconds,
+        )
+      : buildFfmpegAudioArgs(
+          virtualInputName,
+          virtualOutputName,
+          req.options || { format: 'mp3' },
+          req.durationSeconds,
+        );
+
     console.log('[Varia:WASM-Worker] Executing FFmpeg command:', args.join(' '));
 
     // 3. Execute conversion
@@ -191,9 +207,8 @@ async function handleTranscode(req: TranscodeRequest) {
     safeDelete(virtualInputName);
     safeDelete(virtualOutputName);
 
-    const formatInfo = SUPPORTED_AUDIO_FORMATS[req.options.format];
     const baseName = req.inputName.replace(/\.[^/.]+$/, '');
-    const finalOutputName = `${baseName}${formatInfo?.extension || targetExt}`;
+    const finalOutputName = `${baseName}${targetExt}`;
 
     console.timeEnd(`[Varia:WASM-Worker] Transcode ${req.jobId}`);
     console.log(
@@ -208,8 +223,10 @@ async function handleTranscode(req: TranscodeRequest) {
           jobId: req.jobId,
           outputBuffer,
           outputName: finalOutputName,
-          format: req.options.format,
-          mimeType: formatInfo?.mimeType || 'audio/mpeg',
+          format: isGifMode ? ('gif' as any) : req.options?.format || 'mp3',
+          mimeType: isGifMode
+            ? 'image/gif'
+            : SUPPORTED_AUDIO_FORMATS[req.options?.format || 'mp3']?.mimeType || 'audio/mpeg',
           originalSize: req.inputBuffer.byteLength,
           outputSize: outputBuffer.byteLength,
         },
@@ -225,10 +242,16 @@ async function handleTranscode(req: TranscodeRequest) {
     }
 
     const errorMsg = error instanceof Error ? error.message : String(error);
+    const isOOM =
+      errorMsg.toLowerCase().includes('memory') || errorMsg.toLowerCase().includes('abort');
+    const userFriendlyError = isOOM
+      ? 'WebAssembly memory limit reached. Try reducing resolution, FPS, or clip duration.'
+      : `Conversion failed: ${errorMsg}`;
+
     self.postMessage({
       type: 'ERROR',
       jobId: req.jobId,
-      error: `Conversion failed: ${errorMsg}`,
+      error: userFriendlyError,
     } satisfies WorkerOutMessage);
   } finally {
     if (currentJobId === req.jobId) {

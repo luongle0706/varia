@@ -16,14 +16,15 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
   },
   {
     id: 'tool-gif-studio',
-    name: 'GIF Studio & Editor',
+    name: 'GIF Studio & Video to GIF',
     description:
-      'Full-featured GIF maker, trimmer, crop, speed adjustment, and color quantization optimizer.',
+      'Full-featured GIF maker, trimmer, crop, resize, reverse, speed, and color quantization optimizer.',
     category: 'media',
     icon: 'gif',
-    tags: ['gif', 'ezgif', 'video', 'crop', 'optimize'],
+    tags: ['gif', 'ezgif', 'video', 'crop', 'speed', 'reverse', 'optimize'],
     route: '/gif-studio',
-    status: 'coming-soon',
+    status: 'ready',
+    component: () => import('../tools/gif-studio/GifStudioTool'),
   },
   {
     id: 'tool-image-studio',

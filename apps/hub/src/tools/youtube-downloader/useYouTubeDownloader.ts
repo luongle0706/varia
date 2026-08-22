@@ -97,7 +97,9 @@ export function useYouTubeDownloader(): UseYouTubeDownloaderReturn {
       console.log(`[Varia:YouTubeDownloader] Fetching metadata for: ${targetUrl}`);
 
       try {
-        const res = await fetch(`${API_BASE}/api/youtube/info?url=${encodeURIComponent(targetUrl)}`);
+        const res = await fetch(
+          `${API_BASE}/api/youtube/info?url=${encodeURIComponent(targetUrl)}`,
+        );
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
           throw new Error(errData.error || `Server responded with ${res.status}`);
@@ -116,7 +118,9 @@ export function useYouTubeDownloader(): UseYouTubeDownloaderReturn {
         const msg = err instanceof Error ? err.message : String(err);
         if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
           setIsServerOnline(false);
-          setErrorMessage('Companion engine is not active. Please run pnpm dev locally or connect a server.');
+          setErrorMessage(
+            'Companion engine is not active. Please run pnpm dev locally or connect a server.',
+          );
         } else {
           setErrorMessage(msg);
         }

@@ -180,6 +180,16 @@ export class FfmpegClient {
   }
 
   /**
+   * Transcode a video file buffer to high quality animated GIF
+   */
+  public async transcodeGif(
+    request: TranscodeRequest,
+    onProgress?: (p: TranscodeProgress) => void,
+  ): Promise<TranscodeResult> {
+    return this.transcodeAudio({ ...request, mode: 'gif' }, onProgress);
+  }
+
+  /**
    * Cancel an ongoing transcode job
    */
   public cancelJob(jobId: string): void {
