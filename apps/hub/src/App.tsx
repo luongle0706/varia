@@ -276,7 +276,7 @@ const App: React.FC = () => {
                   fontSize: '0.85rem',
                   fontWeight: 600,
                   borderRadius: 2.5,
-                  transition: 'all 0.2s ease',
+                  transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
                   backgroundColor: isActive ? '#8b5cf6' : 'rgba(255, 255, 255, 0.04)',
                   color: isActive ? '#ffffff' : '#a1a1aa',
                   border: `1px solid ${isActive ? '#8b5cf6' : 'rgba(255, 255, 255, 0.06)'}`,
@@ -313,6 +313,7 @@ const App: React.FC = () => {
           onClose={handleBackToHub}
           maxWidth="sm"
           fullWidth
+          disableScrollLock
           PaperProps={{
             sx: {
               backgroundColor: '#121217',

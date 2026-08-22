@@ -17,11 +17,13 @@ export const GlassCard: React.FC<GlassCardProps> = ({
     <Box
       sx={{
         backgroundColor: colorTokens.bg.glass,
-        backdropFilter: 'blur(16px)',
+        backdropFilter: 'blur(12px)',
         border: `1px solid ${colorTokens.bg.border}`,
         borderRadius: 3,
         p: 2.5,
-        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        transform: 'translateZ(0)',
+        transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease',
+        willChange: glowOnHover ? 'transform, box-shadow' : 'auto',
         ...(glowOnHover && {
           '&:hover': {
             borderColor: colorTokens.bg.borderHover,

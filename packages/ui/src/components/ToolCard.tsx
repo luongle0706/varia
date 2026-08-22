@@ -42,7 +42,7 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onClick }) => {
       onClick={onClick}
       sx={{
         backgroundColor: colorTokens.bg.surface,
-        backdropFilter: 'blur(16px)',
+        backdropFilter: 'blur(12px)',
         border: `1px solid ${colorTokens.bg.border}`,
         borderRadius: 3,
         p: 2.5,
@@ -54,7 +54,9 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onClick }) => {
         minHeight: 180,
         position: 'relative',
         overflow: 'hidden',
-        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+        transform: 'translateZ(0)',
+        transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease',
+        willChange: 'transform',
         '&:hover': {
           borderColor: colorTokens.bg.borderHover,
           boxShadow: `0 8px 30px rgba(139, 92, 246, 0.15)`,
@@ -65,18 +67,16 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onClick }) => {
         },
       }}
     >
-      {/* Background Subtle Gradient */}
+      {/* Background Subtle Gradient without runtime blur filters */}
       <Box
         sx={{
           position: 'absolute',
           top: -40,
           right: -40,
-          width: 100,
-          height: 100,
-          borderRadius: '50%',
-          backgroundColor: categoryMeta?.badgeColor || colorTokens.accent.violet,
-          opacity: 0.08,
-          filter: 'blur(30px)',
+          width: 140,
+          height: 140,
+          background: `radial-gradient(circle, ${categoryMeta?.badgeColor || colorTokens.accent.violet} 0%, transparent 70%)`,
+          opacity: 0.12,
           pointerEvents: 'none',
         }}
       />
@@ -94,7 +94,8 @@ export const ToolCard: React.FC<ToolCardProps> = ({ tool, onClick }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'transform 0.25s ease',
+              transition: 'transform 0.2s ease',
+              willChange: 'transform',
             }}
           >
             {icon}

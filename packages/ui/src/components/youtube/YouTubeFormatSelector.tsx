@@ -129,7 +129,7 @@ export const YouTubeFormatSelector: React.FC<YouTubeFormatSelectorProps> = ({
                       backgroundColor: isSelected
                         ? 'rgba(239, 68, 68, 0.12)'
                         : 'rgba(255, 255, 255, 0.02)',
-                      transition: 'all 0.2s ease',
+                      transition: 'border-color 0.15s ease, background-color 0.15s ease',
                       position: 'relative',
                       overflow: 'hidden',
                       '&:hover': {
@@ -215,7 +215,7 @@ export const YouTubeFormatSelector: React.FC<YouTubeFormatSelectorProps> = ({
                       backgroundColor: isSelected
                         ? 'rgba(239, 68, 68, 0.12)'
                         : 'rgba(255, 255, 255, 0.02)',
-                      transition: 'all 0.2s ease',
+                      transition: 'border-color 0.15s ease, background-color 0.15s ease',
                       '&:hover': {
                         borderColor: isSelected ? '#ef4444' : 'rgba(239, 68, 68, 0.4)',
                         backgroundColor: 'rgba(239, 68, 68, 0.06)',
@@ -282,7 +282,7 @@ export const YouTubeFormatSelector: React.FC<YouTubeFormatSelectorProps> = ({
                       backgroundColor: isSelected
                         ? 'rgba(139, 92, 246, 0.12)'
                         : 'rgba(255, 255, 255, 0.02)',
-                      transition: 'all 0.2s ease',
+                      transition: 'border-color 0.15s ease, background-color 0.15s ease',
                       '&:hover': {
                         borderColor: isSelected ? '#8b5cf6' : 'rgba(139, 92, 246, 0.4)',
                         backgroundColor: 'rgba(139, 92, 246, 0.06)',

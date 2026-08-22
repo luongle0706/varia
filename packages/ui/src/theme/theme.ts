@@ -70,6 +70,7 @@ export const variaThemeOptions: ThemeOptions = {
         html: {
           scrollbarGutter: 'stable',
           scrollBehavior: 'smooth',
+          overflowY: 'scroll',
         },
         body: {
           backgroundColor: colorTokens.bg.base,
@@ -94,6 +95,24 @@ export const variaThemeOptions: ThemeOptions = {
             backgroundColor: 'rgba(139, 92, 246, 0.6)',
           },
         },
+        '@media (prefers-reduced-motion: reduce)': {
+          '*': {
+            animationDuration: '0.01ms !important',
+            animationIterationCount: '1 !important',
+            transitionDuration: '0.01ms !important',
+            scrollBehavior: 'auto !important',
+          },
+        },
+      },
+    },
+    MuiModal: {
+      defaultProps: {
+        disableScrollLock: true,
+      },
+    },
+    MuiDialog: {
+      defaultProps: {
+        disableScrollLock: true,
       },
     },
     MuiButton: {
@@ -101,7 +120,8 @@ export const variaThemeOptions: ThemeOptions = {
         root: {
           borderRadius: 10,
           padding: '8px 18px',
-          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: 'transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease',
+          willChange: 'transform',
           boxShadow: 'none',
           '&:hover': {
             boxShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
@@ -124,6 +144,7 @@ export const variaThemeOptions: ThemeOptions = {
           backgroundColor: colorTokens.bg.surface,
           backdropFilter: 'blur(16px)',
           border: `1px solid ${colorTokens.bg.border}`,
+          transform: 'translateZ(0)',
         },
       },
     },

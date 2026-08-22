@@ -99,11 +99,12 @@ export const ConversionSettingsDrawer: React.FC<ConversionSettingsDrawerProps> =
     <Box
       sx={{
         backgroundColor: 'rgba(24, 24, 27, 0.7)',
-        backdropFilter: 'blur(16px)',
+        backdropFilter: 'blur(12px)',
         border: `1px solid ${colorTokens.bg.border}`,
         borderRadius: 3.5,
         p: 2.5,
         mb: 3,
+        transform: 'translateZ(0)',
       }}
     >
       {/* Title & Presets */}
