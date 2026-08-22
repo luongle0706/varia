@@ -63,8 +63,10 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
         p: { xs: 4, md: 6 },
         textAlign: 'center',
         cursor: disabled ? 'not-allowed' : 'pointer',
-        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-        backdropFilter: 'blur(16px)',
+        transform: 'translateZ(0)',
+        transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease',
+        willChange: disabled ? 'auto' : 'transform',
+        backdropFilter: 'blur(12px)',
         '&:hover': {
           borderColor: disabled ? colorTokens.bg.border : colorTokens.accent.violetLight,
           backgroundColor: disabled ? 'rgba(24, 24, 27, 0.5)' : 'rgba(139, 92, 246, 0.04)',
@@ -98,7 +100,8 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
             color: isDragOver ? '#ffffff' : colorTokens.accent.violet,
-            transition: 'all 0.3s ease',
+            transition: 'transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease',
+            willChange: 'transform',
             boxShadow: isDragOver ? '0 0 30px rgba(139, 92, 246, 0.4)' : 'none',
           }}
         >

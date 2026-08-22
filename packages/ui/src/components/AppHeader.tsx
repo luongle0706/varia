@@ -1,25 +1,26 @@
 import React from 'react';
 import { Box, Typography, Stack, Button, IconButton, Tooltip } from '@mui/material';
-import { Search, Github, Sparkles } from 'lucide-react';
+import { Search, Github, Layers } from 'lucide-react';
 import { colorTokens } from '../theme/tokens';
 
 export interface AppHeaderProps {
   onOpenSearch: () => void;
-  toolCount: number;
+  toolCount?: number;
 }
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, toolCount }) => {
+export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch }) => {
   return (
     <Box
       sx={{
         py: 2.5,
         px: { xs: 2, md: 4 },
         borderBottom: `1px solid ${colorTokens.bg.border}`,
-        backdropFilter: 'blur(20px)',
+        backdropFilter: 'blur(16px)',
         backgroundColor: 'rgba(9, 9, 11, 0.75)',
         position: 'sticky',
         top: 0,
         zIndex: 100,
+        transform: 'translateZ(0)',
       }}
     >
       <Stack
@@ -43,7 +44,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, toolCount })
               boxShadow: '0 0 20px rgba(139, 92, 246, 0.4)',
             }}
           >
-            <Sparkles size={20} color="#ffffff" />
+            <Layers size={20} color="#ffffff" />
           </Box>
           <Box>
             <Stack direction="row" spacing={1} alignItems="center">
@@ -53,22 +54,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, toolCount })
               >
                 VARIA
               </Typography>
-              {typeof toolCount === 'number' && (
-                <Box
-                  sx={{
-                    backgroundColor: 'rgba(139, 92, 246, 0.15)',
-                    color: '#a78bfa',
-                    border: '1px solid rgba(139, 92, 246, 0.3)',
-                    borderRadius: '999px',
-                    px: 1,
-                    py: 0.1,
-                    fontSize: '0.7rem',
-                    fontWeight: 700,
-                  }}
-                >
-                  {toolCount} Tools
-                </Box>
-              )}
             </Stack>
           </Box>
         </Stack>
@@ -87,6 +72,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, toolCount })
               px: 2,
               py: 0.8,
               borderRadius: 2,
+              transition: 'border-color 0.15s ease, background-color 0.15s ease',
               '&:hover': {
                 borderColor: colorTokens.bg.borderHover,
                 backgroundColor: 'rgba(255, 255, 255, 0.06)',
@@ -119,6 +105,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenSearch, toolCount })
                 borderRadius: 2,
                 p: 1,
                 color: colorTokens.text.secondary,
+                transition: 'color 0.15s ease, border-color 0.15s ease',
                 '&:hover': {
                   color: colorTokens.text.primary,
                   borderColor: colorTokens.bg.borderHover,

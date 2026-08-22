@@ -150,11 +150,18 @@ export const YouTubeUrlInput: React.FC<YouTubeUrlInputProps> = ({
               height: 54,
               borderRadius: 2.5,
               fontWeight: 700,
+              fontSize: '0.95rem',
               background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-              color: '#ffffff',
-              boxShadow: '0 0 20px rgba(239, 68, 68, 0.3)',
+              color: '#ffffff !important',
+              boxShadow: isValid ? '0 0 20px rgba(239, 68, 68, 0.35)' : 'none',
+              transition: 'transform 0.15s ease, background 0.15s ease, opacity 0.15s ease',
               '&:hover': {
                 background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+              },
+              '&.Mui-disabled': {
+                color: '#ffffff !important',
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+                opacity: 0.75,
               },
             }}
           >
@@ -162,8 +169,10 @@ export const YouTubeUrlInput: React.FC<YouTubeUrlInputProps> = ({
               <CircularProgress size={20} sx={{ color: '#ffffff' }} />
             ) : (
               <>
-                <Search size={18} style={{ marginRight: 8 }} />
-                Fetch Media
+                <Search size={18} color="#ffffff" style={{ marginRight: 8, color: '#ffffff' }} />
+                <Typography component="span" sx={{ color: '#ffffff !important', fontWeight: 700 }}>
+                  Fetch Media
+                </Typography>
               </>
             )}
           </Button>

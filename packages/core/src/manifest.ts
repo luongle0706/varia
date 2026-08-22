@@ -1,5 +1,7 @@
 export type ToolCategory = 'media' | 'dev' | 'network' | 'social' | 'text';
 
+export type ToolStatus = 'ready' | 'beta' | 'coming-soon' | 'disabled';
+
 export interface VariaToolManifest<TComponent = unknown> {
   id: string;
   name: string;
@@ -7,10 +9,8 @@ export interface VariaToolManifest<TComponent = unknown> {
   category: ToolCategory;
   icon: string;
   tags: string[];
-  isOfflineReady: boolean;
-  requiresServer?: boolean;
-  wasmRequired?: boolean;
   route: string;
+  status?: ToolStatus;
   component?: () => Promise<{ default: TComponent }>;
 }
 

@@ -57,15 +57,17 @@ export const SpotlightSearch: React.FC<SpotlightSearchProps> = ({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      disableScrollLock
       PaperProps={{
         sx: {
           backgroundColor: '#121217',
           backgroundImage: 'none',
-          backdropFilter: 'blur(24px)',
+          backdropFilter: 'blur(16px)',
           border: `1px solid ${colorTokens.bg.borderHover}`,
           borderRadius: 3.5,
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
           overflow: 'hidden',
+          transform: 'translateZ(0)',
         },
       }}
     >
@@ -129,7 +131,7 @@ export const SpotlightSearch: React.FC<SpotlightSearchProps> = ({
                     borderRadius: 2,
                     mb: 0.5,
                     p: 1.2,
-                    transition: 'all 0.15s ease',
+                    transition: 'background-color 0.15s ease',
                     '&:hover': {
                       backgroundColor: 'rgba(139, 92, 246, 0.12)',
                       '& .arrow-icon': {
@@ -158,7 +160,14 @@ export const SpotlightSearch: React.FC<SpotlightSearchProps> = ({
                       </Typography>
                     }
                   />
-                  <Box className="arrow-icon" sx={{ opacity: 0, transition: 'all 0.2s ease' }}>
+                  <Box
+                    className="arrow-icon"
+                    sx={{
+                      opacity: 0,
+                      transition: 'opacity 0.15s ease, transform 0.15s ease',
+                      willChange: 'transform, opacity',
+                    }}
+                  >
                     <ArrowRight size={16} color={colorTokens.accent.violet} />
                   </Box>
                 </ListItemButton>

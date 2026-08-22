@@ -15,7 +15,6 @@ import {
 import { AppHeader, BentoGrid, ToolCard, SpotlightSearch, GlassCard } from '@varia/ui';
 import { REGISTERED_TOOLS } from './registry/tools';
 import { TOOL_CATEGORIES, type ToolCategory, type VariaToolManifest } from '@varia/core';
-import { Sparkles, Zap, Shield, HardDriveDownload } from 'lucide-react';
 
 const AudioConverterTool = lazy(() => import('./tools/audio-converter/AudioConverterTool'));
 const YouTubeDownloaderTool = lazy(
@@ -173,21 +172,6 @@ const App: React.FC = () => {
       <Container maxWidth="lg" sx={{ pt: { xs: 5, md: 8 } }}>
         {/* Hero Section */}
         <Box sx={{ textAlign: 'center', mb: 6 }}>
-          <Stack direction="row" spacing={1} justifyContent="center" mb={2}>
-            <Chip
-              icon={<Sparkles size={14} style={{ color: '#8b5cf6' }} />}
-              label="Modern • Minimalist • Client-First"
-              size="small"
-              sx={{
-                backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                border: '1px solid rgba(139, 92, 246, 0.25)',
-                color: '#a78bfa',
-                fontWeight: 600,
-                px: 1,
-              }}
-            />
-          </Stack>
-
           <Typography
             variant="h2"
             sx={{
@@ -201,8 +185,6 @@ const App: React.FC = () => {
             }}
           >
             All your daily digital tools.
-            <br />
-            <span style={{ color: '#8b5cf6', WebkitTextFillColor: '#8b5cf6' }}>Zero clutter.</span>
           </Typography>
 
           <Typography
@@ -210,7 +192,7 @@ const App: React.FC = () => {
             sx={{
               color: '#a1a1aa',
               fontSize: { xs: '1rem', md: '1.2rem' },
-              maxWidth: 640,
+              maxWidth: 720,
               mx: 'auto',
               lineHeight: 1.6,
             }}
@@ -218,36 +200,6 @@ const App: React.FC = () => {
             A high-performance personal monorepo workspace for audio extraction, GIF editing, UUID
             forge, network speed test and developer utilities.
           </Typography>
-
-          {/* Quick Feature Badges */}
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            spacing={2}
-            justifyContent="center"
-            alignItems="center"
-            mt={4}
-          >
-            <GlassCard sx={{ py: 1.2, px: 2, display: 'flex', alignItems: 'center', gap: 1.2 }}>
-              <Zap size={18} color="#8b5cf6" />
-              <Typography variant="caption" sx={{ color: '#f4f4f5', fontWeight: 600 }}>
-                Instant Client-Side WASM
-              </Typography>
-            </GlassCard>
-
-            <GlassCard sx={{ py: 1.2, px: 2, display: 'flex', alignItems: 'center', gap: 1.2 }}>
-              <Shield size={18} color="#06b6d4" />
-              <Typography variant="caption" sx={{ color: '#f4f4f5', fontWeight: 600 }}>
-                100% Privacy • No Tracking
-              </Typography>
-            </GlassCard>
-
-            <GlassCard sx={{ py: 1.2, px: 2, display: 'flex', alignItems: 'center', gap: 1.2 }}>
-              <HardDriveDownload size={18} color="#10b981" />
-              <Typography variant="caption" sx={{ color: '#f4f4f5', fontWeight: 600 }}>
-                Self-Host & Docker Ready
-              </Typography>
-            </GlassCard>
-          </Stack>
         </Box>
 
         {/* Category Navigation Pills */}
@@ -276,7 +228,7 @@ const App: React.FC = () => {
                   fontSize: '0.85rem',
                   fontWeight: 600,
                   borderRadius: 2.5,
-                  transition: 'all 0.2s ease',
+                  transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
                   backgroundColor: isActive ? '#8b5cf6' : 'rgba(255, 255, 255, 0.04)',
                   color: isActive ? '#ffffff' : '#a1a1aa',
                   border: `1px solid ${isActive ? '#8b5cf6' : 'rgba(255, 255, 255, 0.06)'}`,
@@ -313,6 +265,7 @@ const App: React.FC = () => {
           onClose={handleBackToHub}
           maxWidth="sm"
           fullWidth
+          disableScrollLock
           PaperProps={{
             sx: {
               backgroundColor: '#121217',

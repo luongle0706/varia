@@ -46,18 +46,17 @@ Every mini-tool added to the ecosystem follows an isolated manifest contract (pr
 
 ```typescript
 export type ToolCategory = 'media' | 'dev' | 'network' | 'social' | 'text';
+export type ToolStatus = 'ready' | 'beta' | 'coming-soon' | 'disabled';
 
 export interface VariaToolManifest<TComponent = unknown> {
   id: string; // e.g. 'tool-audio-converter'
   name: string; // 'MP4 to MP3 Converter'
   description: string;
   category: ToolCategory;
-  icon: string; // Lucide / MUI Icon identifier
+  icon: string; // Lucide Icon identifier
   tags: string[];
-  isOfflineReady: boolean;
-  requiresServer?: boolean;
-  wasmRequired?: boolean;
-  route: string; // '/tools/audio-converter'
+  route: string; // '/audio-converter'
+  status?: ToolStatus; // 'ready' | 'coming-soon' | 'beta' | 'disabled'
   component?: () => Promise<{ default: TComponent }>;
 }
 ```
