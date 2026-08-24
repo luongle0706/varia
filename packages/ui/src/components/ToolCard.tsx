@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Typography, Chip, Stack } from '@mui/material';
+import React, { memo } from 'react';
+import { Box, Typography, Chip, Stack, IconButton, Tooltip } from '@mui/material';
 import { colorTokens } from '../theme/tokens';
 import type { VariaToolManifest } from '@varia/core';
 import { TOOL_CATEGORIES } from '@varia/core';
@@ -13,11 +13,14 @@ import {
   FileText,
   Key,
   ShieldCheck,
+  Image as ImageIcon,
+  Star,
 } from 'lucide-react';
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   audio: <FileAudio size={22} color={colorTokens.accent.violet} />,
   gif: <Film size={22} color="#ec4899" />,
+  image: <ImageIcon size={22} color="#ec4899" />,
   uuid: <Key size={22} color={colorTokens.accent.violet} />,
   hash: <ShieldCheck size={22} color={colorTokens.accent.cyan} />,
   speed: <Activity size={22} color={colorTokens.accent.cyan} />,
@@ -29,150 +32,202 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 
 export interface ToolCardProps {
   tool: VariaToolManifest;
+  isFavorite?: boolean;
+  onToggleFavorite?: (toolId: string) => void;
   onClick?: () => void;
 }
 
-export const ToolCard: React.FC<ToolCardProps> = ({ tool, onClick }) => {
-  const categoryMeta = TOOL_CATEGORIES[tool.category];
-  const icon = ICON_MAP[tool.icon] || ICON_MAP.default;
+export const ToolCard: React.FC<ToolCardProps> = memo(
+  ({ tool, isFavorite = false, onToggleFavorite, onClick }) => {
+    const categoryMeta = TOOL_CATEGORIES[tool.category];
+    const icon = ICON_MAP[tool.icon] || ICON_MAP.default;
 
-  return (
-    <Box
-      onClick={onClick}
-      sx={{
-        backgroundColor: colorTokens.bg.surface,
-        backdropFilter: 'blur(12px)',
-        border: `1px solid ${colorTokens.bg.border}`,
-        borderRadius: 3,
-        p: 2.5,
-        cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        height: '100%',
-        minHeight: 180,
-        position: 'relative',
-        overflow: 'hidden',
-        transform: 'translateZ(0)',
-        transition:
-          'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease',
-        willChange: 'transform',
-        '&:hover': {
-          borderColor: colorTokens.bg.borderHover,
-          boxShadow: `0 8px 30px rgba(139, 92, 246, 0.15)`,
-          transform: 'translateY(-3px)',
-          '& .tool-card-icon': {
-            transform: 'scale(1.1)',
-          },
-        },
-      }}
-    >
-      {/* Background Subtle Gradient without runtime blur filters */}
+    return (
       <Box
+        onClick={onClick}
         sx={{
-          position: 'absolute',
-          top: -40,
-          right: -40,
-          width: 140,
-          height: 140,
-          background: `radial-gradient(circle, ${categoryMeta?.badgeColor || colorTokens.accent.violet} 0%, transparent 70%)`,
-          opacity: 0.12,
-          pointerEvents: 'none',
+          backgroundColor: colorTokens.bg.surface,
+          backdropFilter: 'blur(12px)',
+          border: `1px solid ${colorTokens.bg.border}`,
+          borderRadius: 3,
+          p: 2.5,
+          cursor: 'pointer',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          height: '100%',
+          minHeight: 180,
+          position: 'relative',
+          overflow: 'hidden',
+          transform: 'translateZ(0)',
+          transition:
+            'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease',
+          willChange: 'transform',
+          '&:hover': {
+            borderColor: colorTokens.bg.borderHover,
+            boxShadow: `0 8px 30px rgba(139, 92, 246, 0.15)`,
+            transform: 'translateY(-3px)',
+            '& .tool-card-icon': {
+              transform: 'scale(1.1)',
+            },
+            '& .tool-star-btn': {
+              opacity: 1,
+            },
+          },
         }}
-      />
-
-      <Box>
-        {/* Top Header Row */}
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5}>
-          <Box
-            className="tool-card-icon"
-            sx={{
-              p: 1.2,
-              borderRadius: 2.5,
-              backgroundColor: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'transform 0.2s ease',
-              willChange: 'transform',
-            }}
-          >
-            {icon}
-          </Box>
-
-          <Stack direction="row" spacing={0.8} alignItems="center">
-            {tool.status === 'beta' && (
-              <Chip
-                label="Beta"
-                size="small"
-                sx={{
-                  height: 20,
-                  fontSize: '0.65rem',
-                  backgroundColor: 'rgba(139, 92, 246, 0.12)',
-                  color: '#a78bfa',
-                  border: '1px solid rgba(139, 92, 246, 0.25)',
-                }}
-              />
-            )}
-            {tool.status === 'coming-soon' && (
-              <Chip
-                label="Coming Soon"
-                size="small"
-                sx={{
-                  height: 20,
-                  fontSize: '0.65rem',
-                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
-                  color: colorTokens.text.muted,
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                }}
-              />
-            )}
-          </Stack>
-        </Stack>
-
-        {/* Title */}
-        <Typography variant="h6" sx={{ fontSize: '1.05rem', fontWeight: 600, mb: 0.5 }}>
-          {tool.name}
-        </Typography>
-
-        {/* Description */}
-        <Typography
-          variant="body2"
+      >
+        {/* Background Subtle Gradient without runtime blur filters */}
+        <Box
           sx={{
-            color: colorTokens.text.secondary,
-            fontSize: '0.85rem',
-            lineHeight: 1.5,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
+            position: 'absolute',
+            top: -40,
+            right: -40,
+            width: 140,
+            height: 140,
+            background: `radial-gradient(circle, ${categoryMeta?.badgeColor || colorTokens.accent.violet} 0%, transparent 70%)`,
+            opacity: 0.12,
+            pointerEvents: 'none',
           }}
-        >
-          {tool.description}
-        </Typography>
-      </Box>
+        />
 
-      {/* Footer Tags */}
-      <Stack direction="row" spacing={0.6} mt={2} flexWrap="wrap" useFlexGap>
-        {tool.tags.slice(0, 3).map(tag => (
+        <Box>
+          {/* Top Header Row */}
+          <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5}>
+            <Box
+              className="tool-card-icon"
+              sx={{
+                p: 1.2,
+                borderRadius: 2.5,
+                backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(255, 255, 255, 0.06)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'transform 0.2s ease',
+                willChange: 'transform',
+              }}
+            >
+              {icon}
+            </Box>
+
+            <Stack direction="row" spacing={0.8} alignItems="center">
+              {tool.status === 'beta' && (
+                <Chip
+                  label="Beta"
+                  size="small"
+                  sx={{
+                    height: 20,
+                    fontSize: '0.65rem',
+                    backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                    color: '#a78bfa',
+                    border: '1px solid rgba(139, 92, 246, 0.25)',
+                  }}
+                />
+              )}
+              {tool.status === 'coming-soon' && (
+                <Chip
+                  label="Coming Soon"
+                  size="small"
+                  sx={{
+                    height: 20,
+                    fontSize: '0.65rem',
+                    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                    color: colorTokens.text.muted,
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}
+                />
+              )}
+
+              {/* Star Toggle Button */}
+              {onToggleFavorite && (
+                <Tooltip
+                  title={isFavorite ? 'Remove from Quick Access' : 'Add to Quick Access'}
+                  placement="top"
+                >
+                  <IconButton
+                    size="small"
+                    className="tool-star-btn"
+                    onClick={e => {
+                      e.stopPropagation();
+                      onToggleFavorite(tool.id);
+                    }}
+                    sx={{
+                      p: 0.5,
+                      borderRadius: 1.5,
+                      color: isFavorite ? '#eab308' : colorTokens.text.muted,
+                      opacity: isFavorite ? 1 : { xs: 0.5, md: 0 },
+                      backgroundColor: isFavorite
+                        ? 'rgba(234, 179, 8, 0.12)'
+                        : 'rgba(255, 255, 255, 0.04)',
+                      border: `1px solid ${
+                        isFavorite ? 'rgba(234, 179, 8, 0.3)' : 'rgba(255, 255, 255, 0.06)'
+                      }`,
+                      transition: 'all 0.15s ease',
+                      '&:hover': {
+                        backgroundColor: isFavorite
+                          ? 'rgba(234, 179, 8, 0.2)'
+                          : 'rgba(255, 255, 255, 0.08)',
+                        color: isFavorite ? '#fde047' : colorTokens.text.primary,
+                        transform: 'scale(1.1)',
+                      },
+                    }}
+                  >
+                    <Star
+                      size={15}
+                      fill={isFavorite ? '#eab308' : 'none'}
+                      strokeWidth={isFavorite ? 1.5 : 2}
+                    />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </Stack>
+          </Stack>
+
+          {/* Title */}
+          <Typography variant="h6" sx={{ fontSize: '1.05rem', fontWeight: 600, mb: 0.5 }}>
+            {tool.name}
+          </Typography>
+
+          {/* Description */}
           <Typography
-            key={tag}
-            variant="caption"
+            variant="body2"
             sx={{
-              fontSize: '0.7rem',
-              color: colorTokens.text.muted,
-              backgroundColor: 'rgba(255, 255, 255, 0.03)',
-              px: 1,
-              py: 0.3,
-              borderRadius: 1,
-              border: '1px solid rgba(255, 255, 255, 0.04)',
+              color: colorTokens.text.secondary,
+              fontSize: '0.85rem',
+              lineHeight: 1.5,
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
             }}
           >
-            #{tag}
+            {tool.description}
           </Typography>
-        ))}
-      </Stack>
-    </Box>
-  );
-};
+        </Box>
+
+        {/* Footer Tags */}
+        <Stack direction="row" spacing={0.6} mt={2} flexWrap="wrap" useFlexGap>
+          {tool.tags.slice(0, 3).map(tag => (
+            <Typography
+              key={tag}
+              variant="caption"
+              sx={{
+                fontSize: '0.7rem',
+                color: colorTokens.text.muted,
+                backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                px: 1,
+                py: 0.3,
+                borderRadius: 1,
+                border: '1px solid rgba(255, 255, 255, 0.04)',
+              }}
+            >
+              #{tag}
+            </Typography>
+          ))}
+        </Stack>
+      </Box>
+    );
+  },
+);
+
+ToolCard.displayName = 'ToolCard';
