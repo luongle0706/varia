@@ -9,3 +9,4 @@ export * from './components/AppHeader';
 export * from './components/audio';
 export * from './components/youtube';
 export * from './components/gif';
+export * from './components/quick-access';

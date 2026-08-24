@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, Suspense, lazy, useCallback } from 'react';
 import {
   Container,
   Box,
@@ -12,9 +12,17 @@ import {
   Button,
   CircularProgress,
 } from '@mui/material';
-import { AppHeader, BentoGrid, ToolCard, SpotlightSearch, GlassCard } from '@varia/ui';
+import {
+  AppHeader,
+  BentoGrid,
+  ToolCard,
+  SpotlightSearch,
+  GlassCard,
+  QuickAccessShelf,
+} from '@varia/ui';
 import { REGISTERED_TOOLS } from './registry/tools';
 import { TOOL_CATEGORIES, type ToolCategory, type VariaToolManifest } from '@varia/core';
+import { useUserPreferences } from './hooks/useUserPreferences';
 
 const AudioConverterTool = lazy(() => import('./tools/audio-converter/AudioConverterTool'));
 const YouTubeDownloaderTool = lazy(
@@ -24,11 +32,29 @@ const GifStudioTool = lazy(() => import('./tools/gif-studio/GifStudioTool'));
 
 const DEFAULT_TITLE = 'Varia — Minimalist Everyday Digital Toolkit';
 
+type FilterCategory = ToolCategory | 'all' | 'favorites';
+
 const App: React.FC = () => {
   const [searchOpen, setSearchOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<ToolCategory | 'all'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<FilterCategory>('all');
   const [activeModalTool, setActiveModalTool] = useState<VariaToolManifest | null>(null);
   const [activeWorkspaceTool, setActiveWorkspaceTool] = useState<VariaToolManifest | null>(null);
+
+  const {
+    favoriteToolIds,
+    isFavorite,
+    addFavorite,
+    removeFavorite,
+    toggleFavorite,
+    reorderFavorites,
+  } = useUserPreferences();
+
+  // Map favorite IDs to full tool manifests, maintaining custom order
+  const favoriteTools = useMemo(() => {
+    return favoriteToolIds
+      .map(id => REGISTERED_TOOLS.find(t => t.id === id))
+      .filter((t): t is VariaToolManifest => Boolean(t));
+  }, [favoriteToolIds]);
 
   // Helper to extract base path (e.g. /varia on GitHub Pages)
   const getBasePath = useCallback((): string => {
@@ -124,13 +150,19 @@ const App: React.FC = () => {
     document.title = DEFAULT_TITLE;
   };
 
-  const filteredTools =
-    selectedCategory === 'all'
-      ? REGISTERED_TOOLS
-      : REGISTERED_TOOLS.filter(t => t.category === selectedCategory);
+  const filteredTools = useMemo(() => {
+    if (selectedCategory === 'favorites') {
+      return favoriteTools;
+    }
+    if (selectedCategory === 'all') {
+      return REGISTERED_TOOLS;
+    }
+    return REGISTERED_TOOLS.filter(t => t.category === selectedCategory);
+  }, [selectedCategory, favoriteTools]);
 
-  const categories: Array<{ id: ToolCategory | 'all'; label: string }> = [
+  const categories: Array<{ id: FilterCategory; label: string }> = [
     { id: 'all', label: 'All Utilities' },
+    { id: 'favorites', label: `⭐ Favorites (${favoriteTools.length})` },
     { id: 'media', label: 'Media Studio' },
     { id: 'dev', label: 'Developer Tools' },
     { id: 'network', label: 'Network' },
@@ -171,9 +203,9 @@ const App: React.FC = () => {
       {/* Sticky Header */}
       <AppHeader onOpenSearch={() => setSearchOpen(true)} toolCount={REGISTERED_TOOLS.length} />
 
-      <Container maxWidth="lg" sx={{ pt: { xs: 5, md: 8 } }}>
+      <Container maxWidth="lg" sx={{ pt: { xs: 5, md: 7 } }}>
         {/* Hero Section */}
-        <Box sx={{ textAlign: 'center', mb: 6 }}>
+        <Box sx={{ textAlign: 'center', mb: 5 }}>
           <Typography
             variant="h2"
             sx={{
@@ -203,6 +235,16 @@ const App: React.FC = () => {
             forge, network speed test and developer utilities.
           </Typography>
         </Box>
+
+        {/* Personalized Quick Access Shelf */}
+        <QuickAccessShelf
+          favoriteTools={favoriteTools}
+          allTools={REGISTERED_TOOLS}
+          onSelectTool={handleSelectTool}
+          onReorderFavorites={reorderFavorites}
+          onRemoveFavorite={removeFavorite}
+          onAddFavorite={addFavorite}
+        />
 
         {/* Category Navigation Pills */}
         <Stack
@@ -248,7 +290,13 @@ const App: React.FC = () => {
         {/* Bento Grid Tool Showcase */}
         <BentoGrid columns={{ xs: 1, sm: 2, md: 3, lg: 3 }}>
           {filteredTools.map(tool => (
-            <ToolCard key={tool.id} tool={tool} onClick={() => handleSelectTool(tool)} />
+            <ToolCard
+              key={tool.id}
+              tool={tool}
+              isFavorite={isFavorite(tool.id)}
+              onToggleFavorite={toggleFavorite}
+              onClick={() => handleSelectTool(tool)}
+            />
           ))}
         </BentoGrid>
       </Container>
@@ -256,9 +304,11 @@ const App: React.FC = () => {
       {/* Spotlight Command Search Modal (Ctrl+K) */}
       <SpotlightSearch
         tools={REGISTERED_TOOLS}
+        favoriteToolIds={favoriteToolIds}
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
         onSelectTool={tool => handleSelectTool(tool)}
+        onToggleFavorite={toggleFavorite}
       />
 
       {/* Tool Launch Modal (for tools without interactive view yet) */}
