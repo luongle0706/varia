@@ -50,9 +50,15 @@ export const DEFAULT_PLATFORM_PRESETS: PlatformPreset[] = [
   {
     id: 'youtube',
     name: 'YouTube',
-    matchDomains: ['youtube.com', 'youtu.be'],
-    engines: ['https://yout-ube.com'],
-    selectedEngine: 'https://yout-ube.com',
+    matchDomains: ['youtube.com', 'youtu.be', 'music.youtube.com', 'm.youtube.com'],
+    engines: [
+      'https://youtu.be',
+      'https://www.youtube.com',
+      'https://www.youtube-nocookie.com',
+      'https://yout-ube.com',
+      'https://music.youtube.com',
+    ],
+    selectedEngine: 'https://youtu.be',
     enabled: true,
   },
   {
@@ -85,3 +91,41 @@ export const DEFAULT_LINK_CONVERTER_CONFIG: LinkConverterConfig = {
 };
 
 export const STORAGE_KEY_LINK_CONVERTER = 'varia_link_converter_config';
+
+/**
+ * Merge user-saved storage with the latest default presets & engines
+ */
+export function mergeConfigWithDefaults(
+  stored?: Partial<LinkConverterConfig> | null,
+): LinkConverterConfig {
+  if (!stored) return DEFAULT_LINK_CONVERTER_CONFIG;
+
+  const storedPlatforms = Array.isArray(stored.platforms) ? stored.platforms : [];
+
+  const mergedPlatforms: PlatformPreset[] = DEFAULT_PLATFORM_PRESETS.map(defaultPlatform => {
+    const existing = storedPlatforms.find(p => p.id === defaultPlatform.id);
+    if (!existing) return defaultPlatform;
+
+    // Merge latest default engines with any engines in storage
+    const combinedEngines = Array.from(
+      new Set([...defaultPlatform.engines, ...(existing.engines || [])]),
+    );
+
+    return {
+      ...defaultPlatform,
+      ...existing,
+      engines: combinedEngines,
+      selectedEngine:
+        existing.selectedEngine && combinedEngines.includes(existing.selectedEngine)
+          ? existing.selectedEngine
+          : defaultPlatform.selectedEngine,
+      enabled: existing.enabled !== undefined ? existing.enabled : defaultPlatform.enabled,
+    };
+  });
+
+  return {
+    ...DEFAULT_LINK_CONVERTER_CONFIG,
+    ...stored,
+    platforms: mergedPlatforms,
+  };
+}

@@ -59,6 +59,38 @@ describe('urlConverter', () => {
       expect(igResult.converted).toBe('https://vxinstagram.com/p/Cxyz12345/');
     });
 
+    it('trims YouTube playlist parameters (list, index, pp) to clean youtu.be shortened link by default', () => {
+      const input =
+        'https://www.youtube.com/watch?v=jyvxDmi4flU&list=RDlz4mZSXHY08&index=5&pp=ygUMdmFndWUgcmVhc29u';
+      const result = convertUrl(input, DEFAULT_LINK_CONVERTER_CONFIG);
+
+      expect(result.matched).toBe(true);
+      expect(result.converted).toBe('https://youtu.be/jyvxDmi4flU');
+      expect(result.platform).toBe('YouTube');
+    });
+
+    it('formats YouTube URLs to clean watch URL when selectedEngine is youtube.com', () => {
+      const watchConfig = {
+        ...DEFAULT_LINK_CONVERTER_CONFIG,
+        platforms: DEFAULT_LINK_CONVERTER_CONFIG.platforms.map(p =>
+          p.id === 'youtube' ? { ...p, selectedEngine: 'https://www.youtube.com' } : p,
+        ),
+      };
+      const input = 'https://www.youtube.com/watch?v=jyvxDmi4flU&list=RDlz4mZSXHY08&index=5';
+      const result = convertUrl(input, watchConfig);
+
+      expect(result.matched).toBe(true);
+      expect(result.converted).toBe('https://www.youtube.com/watch?v=jyvxDmi4flU');
+    });
+
+    it('converts YouTube Shorts URLs to clean shortened links', () => {
+      const input = 'https://www.youtube.com/shorts/jyvxDmi4flU?feature=share';
+      const result = convertUrl(input, DEFAULT_LINK_CONVERTER_CONFIG);
+
+      expect(result.matched).toBe(true);
+      expect(result.converted).toBe('https://youtu.be/jyvxDmi4flU');
+    });
+
     it('returns unmatched for unknown domains', () => {
       const input = 'https://example.com/some/path';
       const result = convertUrl(input, DEFAULT_LINK_CONVERTER_CONFIG);

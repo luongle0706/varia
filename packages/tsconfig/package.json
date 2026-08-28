@@ -6,5 +6,10 @@
     "base.json",
     "react-library.json",
     "vite-app.json"
-  ]
+  ],
+  "exports": {
+    "./base.json": "./base.json",
+    "./react-library.json": "./react-library.json",
+    "./vite-app.json": "./vite-app.json"
+  }
 }

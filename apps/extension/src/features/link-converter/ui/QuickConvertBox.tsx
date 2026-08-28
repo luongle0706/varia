@@ -5,11 +5,18 @@ import { convertUrl } from '../urlConverter';
 
 interface QuickConvertBoxProps {
   config: LinkConverterConfig;
+  initialUrl?: string;
 }
 
-export const QuickConvertBox: React.FC<QuickConvertBoxProps> = ({ config }) => {
-  const [inputUrl, setInputUrl] = useState('');
+export const QuickConvertBox: React.FC<QuickConvertBoxProps> = ({ config, initialUrl }) => {
+  const [inputUrl, setInputUrl] = useState(initialUrl || '');
   const [copied, setCopied] = useState(false);
+
+  React.useEffect(() => {
+    if (initialUrl && !inputUrl) {
+      setInputUrl(initialUrl);
+    }
+  }, [initialUrl, inputUrl]);
 
   const conversion = inputUrl.trim() ? convertUrl(inputUrl, config) : null;
 

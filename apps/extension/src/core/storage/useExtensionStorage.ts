@@ -7,8 +7,9 @@ import { StorageEngine } from './storageEngine';
 export function useExtensionStorage<T>(
   key: string,
   initialValue: T,
+  migrator?: (val: T) => T,
 ): [T, (val: T | ((prev: T) => T)) => Promise<void>, boolean] {
-  const [value, setValue] = useState<T>(initialValue);
+  const [value, setValue] = useState<T>(() => (migrator ? migrator(initialValue) : initialValue));
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -16,14 +17,16 @@ export function useExtensionStorage<T>(
 
     StorageEngine.get<T>(key, initialValue).then(val => {
       if (mounted) {
-        setValue(val);
+        const transformed = migrator ? migrator(val) : val;
+        setValue(transformed);
         setLoading(false);
       }
     });
 
     const unsubscribe = StorageEngine.subscribe<T>(key, newVal => {
       if (mounted && newVal !== undefined) {
-        setValue(newVal);
+        const transformed = migrator ? migrator(newVal) : newVal;
+        setValue(transformed);
       }
     });
 
@@ -31,7 +34,7 @@ export function useExtensionStorage<T>(
       mounted = false;
       unsubscribe();
     };
-  }, [key]);
+  }, [key, migrator]);
 
   const updateValue = useCallback(
     async (valOrUpdater: T | ((prev: T) => T)) => {

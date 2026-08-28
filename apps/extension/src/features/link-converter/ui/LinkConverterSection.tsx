@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Globe,
   Plus,
@@ -11,55 +11,114 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { LinkConverterConfig } from '../types';
+import { LinkConverterConfig, PlatformPreset } from '../types';
 import { extractHost } from '../urlConverter';
 
 interface LinkConverterSectionProps {
   config: LinkConverterConfig;
   onChange: (updater: (prev: LinkConverterConfig) => LinkConverterConfig) => Promise<void>;
+  detectedPlatformId?: string | null;
 }
 
-export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ config, onChange }) => {
+const PLATFORM_ICONS: Record<string, string> = {
+  x: '𝕏',
+  youtube: '📺',
+  reddit: '👽',
+  instagram: '📷',
+  tiktok: '🎵',
+  bluesky: '🦋',
+  threads: '🧵',
+  pixiv: '🎨',
+};
+
+export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({
+  config,
+  onChange,
+  detectedPlatformId,
+}) => {
+  const [activePlatformId, setActivePlatformId] = useState<string>(detectedPlatformId || 'x');
   const [newCustomEngine, setNewCustomEngine] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [showOtherPlatforms, setShowOtherPlatforms] = useState(false);
   const [inputError, setInputError] = useState('');
 
-  // Combined X engines: presets + user custom engines
-  const defaultXEngines = [
-    'https://fixupx.com',
-    'https://fxtwitter.com',
-    'https://cunnyx.com',
-    'https://vxtwitter.com',
-    'https://twittpr.com',
-  ];
+  // Automatically switch active platform when user opens popup on a detected platform
+  useEffect(() => {
+    if (detectedPlatformId) {
+      setActivePlatformId(detectedPlatformId);
+    }
+  }, [detectedPlatformId]);
 
-  const allXEngines = Array.from(new Set([...defaultXEngines, ...(config.customXEngines || [])]));
+  // Find active platform preset
+  const activePreset: PlatformPreset | undefined = config.platforms.find(
+    p => p.id === activePlatformId,
+  );
 
-  const handleSelectXEngine = (engine: string) => {
-    onChange(prev => ({
-      ...prev,
-      xEngine: engine,
-    }));
+  // Engines for currently active platform
+  let activeEngines: string[] = [];
+  let currentSelectedEngine = '';
+
+  if (activePlatformId === 'x') {
+    const defaultXEngines = [
+      'https://fixupx.com',
+      'https://fxtwitter.com',
+      'https://cunnyx.com',
+      'https://vxtwitter.com',
+      'https://twittpr.com',
+    ];
+    activeEngines = Array.from(new Set([...defaultXEngines, ...(config.customXEngines || [])]));
+    currentSelectedEngine = config.xEngine || 'https://fixupx.com';
+  } else if (activePreset) {
+    activeEngines = activePreset.engines || [];
+    currentSelectedEngine = activePreset.selectedEngine || activeEngines[0] || '';
+  }
+
+  const handleSelectEngine = (engine: string) => {
+    if (activePlatformId === 'x') {
+      onChange(prev => ({
+        ...prev,
+        xEngine: engine,
+      }));
+    } else {
+      onChange(prev => ({
+        ...prev,
+        platforms: prev.platforms.map(p =>
+          p.id === activePlatformId ? { ...p, selectedEngine: engine } : p,
+        ),
+      }));
+    }
   };
 
   const handleAddCustomEngine = () => {
     const trimmed = newCustomEngine.trim();
     if (!trimmed) return;
 
-    let normalized = trimmed.startsWith('http') ? trimmed : `https://${trimmed}`;
+    const normalized = trimmed.startsWith('http') ? trimmed : `https://${trimmed}`;
     try {
       new URL(normalized);
     } catch {
-      setInputError('Please enter a valid URL/domain (e.g. cunnyx.com)');
+      setInputError('Please enter a valid URL or domain');
       return;
     }
 
-    onChange(prev => ({
-      ...prev,
-      xEngine: normalized,
-      customXEngines: Array.from(new Set([...(prev.customXEngines || []), normalized])),
-    }));
+    if (activePlatformId === 'x') {
+      onChange(prev => ({
+        ...prev,
+        xEngine: normalized,
+        customXEngines: Array.from(new Set([...(prev.customXEngines || []), normalized])),
+      }));
+    } else {
+      onChange(prev => ({
+        ...prev,
+        platforms: prev.platforms.map(p => {
+          if (p.id === activePlatformId) {
+            const nextEngines = Array.from(new Set([...p.engines, normalized]));
+            return { ...p, engines: nextEngines, selectedEngine: normalized };
+          }
+          return p;
+        }),
+      }));
+    }
 
     setNewCustomEngine('');
     setShowCustomInput(false);
@@ -68,15 +127,30 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
 
   const handleRemoveCustomEngine = (engineToRemove: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    onChange(prev => {
-      const nextCustom = (prev.customXEngines || []).filter(e => e !== engineToRemove);
-      const nextActive = prev.xEngine === engineToRemove ? 'https://fixupx.com' : prev.xEngine;
-      return {
+    if (activePlatformId === 'x') {
+      onChange(prev => {
+        const nextCustom = (prev.customXEngines || []).filter(eng => eng !== engineToRemove);
+        const nextActive = prev.xEngine === engineToRemove ? 'https://fixupx.com' : prev.xEngine;
+        return {
+          ...prev,
+          customXEngines: nextCustom,
+          xEngine: nextActive,
+        };
+      });
+    } else {
+      onChange(prev => ({
         ...prev,
-        customXEngines: nextCustom,
-        xEngine: nextActive,
-      };
-    });
+        platforms: prev.platforms.map(p => {
+          if (p.id === activePlatformId) {
+            const nextEngines = p.engines.filter(eng => eng !== engineToRemove);
+            const nextSelected =
+              p.selectedEngine === engineToRemove ? nextEngines[0] || '' : p.selectedEngine;
+            return { ...p, engines: nextEngines, selectedEngine: nextSelected };
+          }
+          return p;
+        }),
+      }));
+    }
   };
 
   const handleToggle = (
@@ -107,38 +181,64 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
     }));
   };
 
+  const currentPlatformTitle =
+    activePreset?.name || (activePlatformId === 'x' ? 'X (Twitter)' : activePlatformId);
+
   return (
     <div className="section-container">
-      {/* 𝕏 Post Embed Engine Selector */}
-      <div className="card-box">
+      {/* Dynamic Context-Aware Featured Platform Engine Card */}
+      <div className="card-box highlight-card">
         <div className="card-box-header">
           <div className="title-with-icon">
-            <span className="platform-icon-badge">𝕏</span>
+            <span className="platform-icon-badge">{PLATFORM_ICONS[activePlatformId] || '🔗'}</span>
             <div>
-              <div className="box-title">𝕏 (Twitter) Embed Engine</div>
-              <div className="box-subtitle">Choose the destination domain for post embeds</div>
+              <div className="box-title-row">
+                <span className="box-title">{currentPlatformTitle} Embed Engine</span>
+              </div>
+              <div className="box-subtitle">
+                Choose destination format for {currentPlatformTitle} links
+              </div>
             </div>
           </div>
         </div>
 
         {/* Engine Grid / Pills */}
         <div className="engine-grid">
-          {allXEngines.map(engine => {
+          {activeEngines.map(engine => {
             const host = extractHost(engine);
-            const isSelected = extractHost(config.xEngine) === host;
-            const isCustom = !defaultXEngines.includes(engine);
+            const isSelected = extractHost(currentSelectedEngine) === host;
+            const isDefault =
+              (activePlatformId === 'x' &&
+                [
+                  'fixupx.com',
+                  'fxtwitter.com',
+                  'cunnyx.com',
+                  'vxtwitter.com',
+                  'twittpr.com',
+                ].includes(host)) ||
+              (activePreset &&
+                [
+                  'youtu.be',
+                  'youtube.com',
+                  'youtube-nocookie.com',
+                  'yout-ube.com',
+                  'rxddit.com',
+                  'vxinstagram.com',
+                  'tnktok.com',
+                  'fxbsky.app',
+                ].includes(host));
 
             return (
               <button
                 key={engine}
                 type="button"
                 className={`engine-pill ${isSelected ? 'active' : ''}`}
-                onClick={() => handleSelectXEngine(engine)}
+                onClick={() => handleSelectEngine(engine)}
               >
                 <span className="pill-dot" />
                 <span className="pill-name">{host}</span>
                 {isSelected && <Check size={13} className="pill-check" />}
-                {isCustom && (
+                {!isDefault && (
                   <Trash2
                     size={13}
                     className="pill-delete"
@@ -163,7 +263,7 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
               <input
                 type="text"
                 className="custom-input"
-                placeholder="e.g. cunnyx.com"
+                placeholder="e.g. youtu.be or custom.com"
                 value={newCustomEngine}
                 onChange={e => {
                   setNewCustomEngine(e.target.value);
@@ -192,7 +292,7 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
         {inputError && <div className="error-text">{inputError}</div>}
       </div>
 
-      {/* Integration & Privacy Preferences */}
+      {/* Preferences & Integration */}
       <div className="card-box">
         <div className="card-box-header">
           <div className="title-with-icon">
@@ -209,11 +309,9 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
             <div className="toggle-info">
               <div className="toggle-label">
                 <Layers size={14} />
-                <span>Show in 𝕏 Share Dropdown</span>
+                <span>Show in 𝕏 & YouTube Context Menus</span>
               </div>
-              <div className="toggle-desc">
-                Adds "Copy embed link" natively inside X's post menu
-              </div>
+              <div className="toggle-desc">Adds native copy embed option to post/video menus</div>
             </div>
             <div className={`switch ${config.showInShareMenu ? 'checked' : ''}`}>
               <div className="switch-thumb" />
@@ -225,9 +323,9 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
             <div className="toggle-info">
               <div className="toggle-label">
                 <ShieldCheck size={14} />
-                <span>Strip Tracking Queries</span>
+                <span>Strip Tracking & Playlists</span>
               </div>
-              <div className="toggle-desc">Removes ?s=20, ?t=..., utm_* from copied links</div>
+              <div className="toggle-desc">Removes ?s=20, &list=..., &index=..., utm_*</div>
             </div>
             <div className={`switch ${config.stripTrackingParams ? 'checked' : ''}`}>
               <div className="switch-thumb" />
@@ -239,11 +337,9 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
             <div className="toggle-info">
               <div className="toggle-label">
                 <Bell size={14} />
-                <span>Floating Toast Feedback</span>
+                <span>Native Toast & Bezel Feedback</span>
               </div>
-              <div className="toggle-desc">
-                Displays a subtle notification when embed link is copied
-              </div>
+              <div className="toggle-desc">Displays confirmation toast when link is copied</div>
             </div>
             <div className={`switch ${config.showToast ? 'checked' : ''}`}>
               <div className="switch-thumb" />
@@ -252,7 +348,7 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
         </div>
       </div>
 
-      {/* Other Platforms (Reddit, Instagram, TikTok, etc.) */}
+      {/* Other Platforms Accordion */}
       <div className="card-box">
         <div
           className="card-box-header clickable"
@@ -261,8 +357,8 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
           <div className="title-with-icon">
             <Globe size={16} className="text-accent" />
             <div>
-              <div className="box-title">Other Platforms ({config.platforms.length})</div>
-              <div className="box-subtitle">Reddit, Instagram, TikTok, Bluesky, Pixiv</div>
+              <div className="box-title">All Supported Platforms ({config.platforms.length})</div>
+              <div className="box-subtitle">YouTube, Reddit, Instagram, TikTok, Bluesky, Pixiv</div>
             </div>
           </div>
           {showOtherPlatforms ? <ChevronUp size={16} /> : <ChevronDown size={16} />}

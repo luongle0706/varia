@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link2, Download, Settings, Sparkles, Keyboard } from 'lucide-react';
 import { useExtensionStorage } from '../core/storage/useExtensionStorage';
 import {
   DEFAULT_LINK_CONVERTER_CONFIG,
   STORAGE_KEY_LINK_CONVERTER,
+  mergeConfigWithDefaults,
 } from '../features/link-converter/defaults';
 import { LinkConverterConfig } from '../features/link-converter/types';
 import { LinkConverterSection } from '../features/link-converter/ui/LinkConverterSection';
@@ -16,16 +17,53 @@ import { MediaDownloaderSection } from '../features/media-downloader/ui/MediaDow
 
 export const PopupApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'links' | 'downloader' | 'about'>('links');
+  const [detectedPlatformId, setDetectedPlatformId] = useState<string | null>(null);
+  const [activeTabUrl, setActiveTabUrl] = useState<string>('');
 
   const [linkConfig, setLinkConfig] = useExtensionStorage<LinkConverterConfig>(
     STORAGE_KEY_LINK_CONVERTER,
     DEFAULT_LINK_CONVERTER_CONFIG,
+    mergeConfigWithDefaults,
   );
 
   const [mediaConfig, setMediaConfig] = useExtensionStorage(
     STORAGE_KEY_MEDIA_DOWNLOADER,
     DEFAULT_MEDIA_DOWNLOADER_CONFIG,
   );
+
+  useEffect(() => {
+    if (typeof chrome !== 'undefined' && chrome?.tabs?.query) {
+      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+        const url = tabs[0]?.url;
+        if (url) {
+          setActiveTabUrl(url);
+          try {
+            const parsed = new URL(url);
+            const host = parsed.hostname.toLowerCase();
+            if (host.includes('youtube.com') || host.includes('youtu.be')) {
+              setDetectedPlatformId('youtube');
+            } else if (host.includes('x.com') || host.includes('twitter.com')) {
+              setDetectedPlatformId('x');
+            } else if (host.includes('reddit.com')) {
+              setDetectedPlatformId('reddit');
+            } else if (host.includes('instagram.com')) {
+              setDetectedPlatformId('instagram');
+            } else if (host.includes('tiktok.com')) {
+              setDetectedPlatformId('tiktok');
+            } else if (host.includes('bsky.app')) {
+              setDetectedPlatformId('bluesky');
+            } else if (host.includes('threads.net')) {
+              setDetectedPlatformId('threads');
+            } else if (host.includes('pixiv.net')) {
+              setDetectedPlatformId('pixiv');
+            }
+          } catch {
+            // Ignore error
+          }
+        }
+      });
+    }
+  }, []);
 
   return (
     <div className="popup-app">
@@ -86,8 +124,12 @@ export const PopupApp: React.FC = () => {
       <main className="popup-content">
         {activeTab === 'links' && (
           <div className="tab-panel animate-fade-in">
-            <QuickConvertBox config={linkConfig} />
-            <LinkConverterSection config={linkConfig} onChange={setLinkConfig} />
+            <QuickConvertBox config={linkConfig} initialUrl={activeTabUrl} />
+            <LinkConverterSection
+              config={linkConfig}
+              onChange={setLinkConfig}
+              detectedPlatformId={detectedPlatformId}
+            />
           </div>
         )}
 
