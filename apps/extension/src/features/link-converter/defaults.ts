@@ -95,8 +95,8 @@ export function mergeConfigWithDefaults(
 
   const storedPlatforms = Array.isArray(stored.platforms) ? stored.platforms : [];
 
-  const mergedPlatforms: PlatformPreset[] = DEFAULT_PLATFORM_PRESETS.map((defaultPlatform) => {
-    const existing = storedPlatforms.find((p) => p.id === defaultPlatform.id);
+  const mergedPlatforms: PlatformPreset[] = DEFAULT_PLATFORM_PRESETS.map(defaultPlatform => {
+    const existing = storedPlatforms.find(p => p.id === defaultPlatform.id);
     if (!existing) return defaultPlatform;
 
     const safeSelected =

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "tsc && vite build",
+    "package": "tsc && vite build && node scripts/build-zip.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"

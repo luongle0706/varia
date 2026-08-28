@@ -46,7 +46,7 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({
 
   // Find active platform preset
   const activePreset: PlatformPreset | undefined = config.platforms.find(
-    (p) => p.id === activePlatformId,
+    p => p.id === activePlatformId,
   );
 
   // Engines for currently active platform
@@ -69,14 +69,14 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({
 
   const handleSelectEngine = (engine: string) => {
     if (activePlatformId === 'x') {
-      onChange((prev) => ({
+      onChange(prev => ({
         ...prev,
         xEngine: engine,
       }));
     } else {
-      onChange((prev) => ({
+      onChange(prev => ({
         ...prev,
-        platforms: prev.platforms.map((p) =>
+        platforms: prev.platforms.map(p =>
           p.id === activePlatformId ? { ...p, selectedEngine: engine } : p,
         ),
       }));
@@ -89,27 +89,25 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({
       'enabled' | 'showInShareMenu' | 'stripTrackingParams' | 'showToast'
     >,
   ) => {
-    onChange((prev) => ({
+    onChange(prev => ({
       ...prev,
       [key]: !prev[key],
     }));
   };
 
   const handlePlatformEngineChange = (platformId: string, engine: string) => {
-    onChange((prev) => ({
+    onChange(prev => ({
       ...prev,
-      platforms: prev.platforms.map((p) =>
+      platforms: prev.platforms.map(p =>
         p.id === platformId ? { ...p, selectedEngine: engine } : p,
       ),
     }));
   };
 
   const handlePlatformToggle = (platformId: string) => {
-    onChange((prev) => ({
+    onChange(prev => ({
       ...prev,
-      platforms: prev.platforms.map((p) =>
-        p.id === platformId ? { ...p, enabled: !p.enabled } : p,
-      ),
+      platforms: prev.platforms.map(p => (p.id === platformId ? { ...p, enabled: !p.enabled } : p)),
     }));
   };
 
@@ -136,7 +134,7 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({
 
         {/* Engine Grid / Pills */}
         <div className="engine-grid">
-          {activeEngines.map((engine) => {
+          {activeEngines.map(engine => {
             const host = extractHost(engine);
             const isSelected = extractHost(currentSelectedEngine) === host;
 
@@ -230,7 +228,7 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({
 
         {showOtherPlatforms && (
           <div className="platform-list animate-fade-in">
-            {config.platforms.map((platform) => (
+            {config.platforms.map(platform => (
               <div key={platform.id} className="platform-row">
                 <div className="platform-name-col">
                   <div
@@ -247,9 +245,9 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({
                     className="platform-select"
                     value={platform.selectedEngine}
                     disabled={!platform.enabled}
-                    onChange={(e) => handlePlatformEngineChange(platform.id, e.target.value)}
+                    onChange={e => handlePlatformEngineChange(platform.id, e.target.value)}
                   >
-                    {platform.engines.map((engine) => (
+                    {platform.engines.map(engine => (
                       <option key={engine} value={engine}>
                         {extractHost(engine)}
                       </option>
