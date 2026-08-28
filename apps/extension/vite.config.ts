@@ -13,7 +13,9 @@ export default defineConfig({
         // 1. Build self-contained Content Script (IIFE - zero external chunk imports)
         await viteBuild({
           configFile: false,
+          publicDir: false,
           build: {
+            copyPublicDir: false,
             outDir: resolve(__dirname, 'dist/content'),
             emptyOutDir: false,
             lib: {
@@ -34,7 +36,9 @@ export default defineConfig({
         // 2. Build self-contained Background Service Worker (ES Module)
         await viteBuild({
           configFile: false,
+          publicDir: false,
           build: {
+            copyPublicDir: false,
             outDir: resolve(__dirname, 'dist/background'),
             emptyOutDir: false,
             lib: {
