@@ -23,14 +23,14 @@ export class SafeObserver {
 
     const attach = () => {
       const container = document.querySelector(this.options.containerSelector) || document.body;
-      
+
       // Check if target already exists immediately
       const existing = container.querySelector(this.options.targetSelector);
       if (existing) {
         this.options.onTargetFound(existing as HTMLElement);
       }
 
-      this.observer = new MutationObserver((mutations) => {
+      this.observer = new MutationObserver(mutations => {
         let hasRelevantChange = false;
         for (const m of mutations) {
           if (m.addedNodes.length > 0) {

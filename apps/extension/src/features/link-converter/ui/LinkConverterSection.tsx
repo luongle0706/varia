@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  Globe, 
-  Plus, 
-  Trash2, 
-  Settings2, 
-  Check, 
-  ShieldCheck, 
-  Layers, 
-  Bell, 
-  ChevronDown, 
-  ChevronUp 
+import {
+  Globe,
+  Plus,
+  Trash2,
+  Settings2,
+  Check,
+  ShieldCheck,
+  Layers,
+  Bell,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { LinkConverterConfig } from '../types';
 import { extractHost } from '../urlConverter';
@@ -37,7 +37,7 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
   const allXEngines = Array.from(new Set([...defaultXEngines, ...(config.customXEngines || [])]));
 
   const handleSelectXEngine = (engine: string) => {
-    onChange((prev) => ({
+    onChange(prev => ({
       ...prev,
       xEngine: engine,
     }));
@@ -55,7 +55,7 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
       return;
     }
 
-    onChange((prev) => ({
+    onChange(prev => ({
       ...prev,
       xEngine: normalized,
       customXEngines: Array.from(new Set([...(prev.customXEngines || []), normalized])),
@@ -68,8 +68,8 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
 
   const handleRemoveCustomEngine = (engineToRemove: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    onChange((prev) => {
-      const nextCustom = (prev.customXEngines || []).filter((e) => e !== engineToRemove);
+    onChange(prev => {
+      const nextCustom = (prev.customXEngines || []).filter(e => e !== engineToRemove);
       const nextActive = prev.xEngine === engineToRemove ? 'https://fixupx.com' : prev.xEngine;
       return {
         ...prev,
@@ -79,24 +79,31 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
     });
   };
 
-  const handleToggle = (key: keyof Pick<LinkConverterConfig, 'enabled' | 'showInShareMenu' | 'stripTrackingParams' | 'showToast'>) => {
-    onChange((prev) => ({
+  const handleToggle = (
+    key: keyof Pick<
+      LinkConverterConfig,
+      'enabled' | 'showInShareMenu' | 'stripTrackingParams' | 'showToast'
+    >,
+  ) => {
+    onChange(prev => ({
       ...prev,
       [key]: !prev[key],
     }));
   };
 
   const handlePlatformEngineChange = (platformId: string, engine: string) => {
-    onChange((prev) => ({
+    onChange(prev => ({
       ...prev,
-      platforms: prev.platforms.map((p) => (p.id === platformId ? { ...p, selectedEngine: engine } : p)),
+      platforms: prev.platforms.map(p =>
+        p.id === platformId ? { ...p, selectedEngine: engine } : p,
+      ),
     }));
   };
 
   const handlePlatformToggle = (platformId: string) => {
-    onChange((prev) => ({
+    onChange(prev => ({
       ...prev,
-      platforms: prev.platforms.map((p) => (p.id === platformId ? { ...p, enabled: !p.enabled } : p)),
+      platforms: prev.platforms.map(p => (p.id === platformId ? { ...p, enabled: !p.enabled } : p)),
     }));
   };
 
@@ -116,7 +123,7 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
 
         {/* Engine Grid / Pills */}
         <div className="engine-grid">
-          {allXEngines.map((engine) => {
+          {allXEngines.map(engine => {
             const host = extractHost(engine);
             const isSelected = extractHost(config.xEngine) === host;
             const isCustom = !defaultXEngines.includes(engine);
@@ -135,7 +142,7 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
                   <Trash2
                     size={13}
                     className="pill-delete"
-                    onClick={(e) => handleRemoveCustomEngine(engine, e)}
+                    onClick={e => handleRemoveCustomEngine(engine, e)}
                   />
                 )}
               </button>
@@ -158,11 +165,11 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
                 className="custom-input"
                 placeholder="e.g. cunnyx.com"
                 value={newCustomEngine}
-                onChange={(e) => {
+                onChange={e => {
                   setNewCustomEngine(e.target.value);
                   setInputError('');
                 }}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddCustomEngine()}
+                onKeyDown={e => e.key === 'Enter' && handleAddCustomEngine()}
                 autoFocus
               />
               <button type="button" className="btn-add" onClick={handleAddCustomEngine}>
@@ -204,7 +211,9 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
                 <Layers size={14} />
                 <span>Show in 𝕏 Share Dropdown</span>
               </div>
-              <div className="toggle-desc">Adds "Copy embed link" natively inside X's post menu</div>
+              <div className="toggle-desc">
+                Adds "Copy embed link" natively inside X's post menu
+              </div>
             </div>
             <div className={`switch ${config.showInShareMenu ? 'checked' : ''}`}>
               <div className="switch-thumb" />
@@ -232,7 +241,9 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
                 <Bell size={14} />
                 <span>Floating Toast Feedback</span>
               </div>
-              <div className="toggle-desc">Displays a subtle notification when embed link is copied</div>
+              <div className="toggle-desc">
+                Displays a subtle notification when embed link is copied
+              </div>
             </div>
             <div className={`switch ${config.showToast ? 'checked' : ''}`}>
               <div className="switch-thumb" />
@@ -259,7 +270,7 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
 
         {showOtherPlatforms && (
           <div className="platform-list animate-fade-in">
-            {config.platforms.map((platform) => (
+            {config.platforms.map(platform => (
               <div key={platform.id} className="platform-row">
                 <div className="platform-name-col">
                   <div
@@ -276,9 +287,9 @@ export const LinkConverterSection: React.FC<LinkConverterSectionProps> = ({ conf
                     className="platform-select"
                     value={platform.selectedEngine}
                     disabled={!platform.enabled}
-                    onChange={(e) => handlePlatformEngineChange(platform.id, e.target.value)}
+                    onChange={e => handlePlatformEngineChange(platform.id, e.target.value)}
                   >
-                    {platform.engines.map((engine) => (
+                    {platform.engines.map(engine => (
                       <option key={engine} value={engine}>
                         {extractHost(engine)}
                       </option>

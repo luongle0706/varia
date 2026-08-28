@@ -11,7 +11,9 @@ export function showToast(message: string, durationMs = 2500): void {
 
   const toast = document.createElement('div');
   toast.id = 'varia-extension-toast';
-  toast.setAttribute('style', `
+  toast.setAttribute(
+    'style',
+    `
     position: fixed;
     bottom: 32px;
     left: 50%;
@@ -30,7 +32,8 @@ export function showToast(message: string, durationMs = 2500): void {
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  `);
+  `,
+  );
 
   toast.innerHTML = `<span>${message}</span>`;
 

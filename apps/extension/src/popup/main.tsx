@@ -9,6 +9,6 @@ if (rootElement) {
   root.render(
     <React.StrictMode>
       <PopupApp />
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 }

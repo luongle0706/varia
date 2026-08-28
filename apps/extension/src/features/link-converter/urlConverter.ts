@@ -29,7 +29,7 @@ export function cleanSearchParams(searchParams: URLSearchParams): void {
       keysToDelete.push(key);
     }
   });
-  keysToDelete.forEach((key) => searchParams.delete(key));
+  keysToDelete.forEach(key => searchParams.delete(key));
 }
 
 /**
@@ -58,7 +58,11 @@ export function convertUrl(rawUrl: string, config: LinkConverterConfig): Convers
     const hostname = parsed.hostname.replace(/^www\./, '').toLowerCase();
 
     // 1. Check Special X (Twitter) Engine override
-    const isXDomain = hostname === 'x.com' || hostname === 'twitter.com' || hostname.endsWith('.x.com') || hostname.endsWith('.twitter.com');
+    const isXDomain =
+      hostname === 'x.com' ||
+      hostname === 'twitter.com' ||
+      hostname.endsWith('.x.com') ||
+      hostname.endsWith('.twitter.com');
     if (isXDomain) {
       if (config.stripTrackingParams) {
         cleanSearchParams(parsed.searchParams);
@@ -83,7 +87,7 @@ export function convertUrl(rawUrl: string, config: LinkConverterConfig): Convers
     for (const platform of config.platforms) {
       if (!platform.enabled) continue;
 
-      const matches = platform.matchDomains.some((d) => {
+      const matches = platform.matchDomains.some(d => {
         const normD = d.replace(/^www\./, '').toLowerCase();
         return hostname === normD || hostname.endsWith(`.${normD}`);
       });

@@ -42,7 +42,7 @@ export class StorageEngine {
         console.warn(`[StorageEngine] Failed to save "${key}" to chrome.storage.sync:`, err);
       }
     }
-    
+
     if (typeof localStorage !== 'undefined') {
       try {
         localStorage.setItem(`varia_ext_${key}`, JSON.stringify(value));
@@ -57,7 +57,10 @@ export class StorageEngine {
    */
   static subscribe<T>(key: string, callback: (newValue: T, oldValue?: T) => void): () => void {
     if (typeof chrome !== 'undefined' && chrome?.storage?.onChanged) {
-      const listener = (changes: { [key: string]: chrome.storage.StorageChange }, areaName: string) => {
+      const listener = (
+        changes: { [key: string]: chrome.storage.StorageChange },
+        areaName: string,
+      ) => {
         if (areaName === 'sync' && changes[key]) {
           callback(changes[key].newValue as T, changes[key].oldValue as T);
         }
@@ -65,13 +68,16 @@ export class StorageEngine {
       chrome.storage.onChanged.addListener(listener);
       return () => chrome.storage.onChanged.removeListener(listener);
     }
-    
+
     // Fallback window storage event
     if (typeof window !== 'undefined') {
       const listener = (e: StorageEvent) => {
         if (e.key === `varia_ext_${key}` && e.newValue !== null) {
           try {
-            callback(JSON.parse(e.newValue) as T, e.oldValue ? JSON.parse(e.oldValue) as T : undefined);
+            callback(
+              JSON.parse(e.newValue) as T,
+              e.oldValue ? (JSON.parse(e.oldValue) as T) : undefined,
+            );
           } catch {
             // Ignore parse errors
           }

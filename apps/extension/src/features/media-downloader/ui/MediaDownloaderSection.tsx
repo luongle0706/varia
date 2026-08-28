@@ -7,9 +7,14 @@ interface MediaDownloaderSectionProps {
   onChange: (updater: (prev: MediaDownloaderConfig) => MediaDownloaderConfig) => Promise<void>;
 }
 
-export const MediaDownloaderSection: React.FC<MediaDownloaderSectionProps> = ({ config, onChange }) => {
-  const handleToggle = (key: keyof Pick<MediaDownloaderConfig, 'enabled' | 'autoSniff' | 'bridgeToVariaHub'>) => {
-    onChange((prev) => ({
+export const MediaDownloaderSection: React.FC<MediaDownloaderSectionProps> = ({
+  config,
+  onChange,
+}) => {
+  const handleToggle = (
+    key: keyof Pick<MediaDownloaderConfig, 'enabled' | 'autoSniff' | 'bridgeToVariaHub'>,
+  ) => {
+    onChange(prev => ({
       ...prev,
       [key]: !prev[key],
     }));
@@ -32,7 +37,9 @@ export const MediaDownloaderSection: React.FC<MediaDownloaderSectionProps> = ({ 
         </div>
 
         <p className="highlight-description">
-          This extension is architected with a modular plugin system. When you are ready to implement stream sniffing (m3u8, mp4, HLS) or YouTube download triggers, this module plugs directly into your local Varia Hub.
+          This extension is architected with a modular plugin system. When you are ready to
+          implement stream sniffing (m3u8, mp4, HLS) or YouTube download triggers, this module plugs
+          directly into your local Varia Hub.
         </p>
 
         <div className="toggle-list">
@@ -55,7 +62,9 @@ export const MediaDownloaderSection: React.FC<MediaDownloaderSectionProps> = ({ 
                 <Server size={14} />
                 <span>Varia Hub Direct Bridge</span>
               </div>
-              <div className="toggle-desc">Forward media to local Varia Hub for FFmpeg / GIF processing</div>
+              <div className="toggle-desc">
+                Forward media to local Varia Hub for FFmpeg / GIF processing
+              </div>
             </div>
             <div className={`switch ${config.bridgeToVariaHub ? 'checked' : ''}`}>
               <div className="switch-thumb" />
@@ -76,7 +85,7 @@ export const MediaDownloaderSection: React.FC<MediaDownloaderSectionProps> = ({ 
         </div>
 
         <div className="tags-row">
-          {config.supportedFormats.map((fmt) => (
+          {config.supportedFormats.map(fmt => (
             <span key={fmt} className="format-tag">
               .{fmt}
             </span>

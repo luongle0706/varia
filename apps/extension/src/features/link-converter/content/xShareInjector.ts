@@ -10,24 +10,30 @@ let lastClickedTweetArticle: HTMLElement | null = null;
 
 // Track which tweet share button was clicked on the timeline
 function setupShareClickTracker(): void {
-  document.addEventListener('pointerdown', (e) => {
-    const target = e.target as HTMLElement | null;
-    if (!target) return;
+  document.addEventListener(
+    'pointerdown',
+    e => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
 
-    // Check if clicked element or parent is the share button
-    const shareBtn = target.closest('button[data-testid="share"], [aria-label*="Share"], [aria-label*="share"]');
-    if (shareBtn) {
-      // Find parent tweet article
-      const article = shareBtn.closest('article[data-testid="tweet"]') as HTMLElement | null;
-      if (article) {
-        lastClickedTweetArticle = article;
-        const timeLink = article.querySelector('time')?.closest('a') as HTMLAnchorElement | null;
-        if (timeLink && timeLink.href) {
-          lastClickedShareTweetUrl = timeLink.href;
+      // Check if clicked element or parent is the share button
+      const shareBtn = target.closest(
+        'button[data-testid="share"], [aria-label*="Share"], [aria-label*="share"]',
+      );
+      if (shareBtn) {
+        // Find parent tweet article
+        const article = shareBtn.closest('article[data-testid="tweet"]') as HTMLElement | null;
+        if (article) {
+          lastClickedTweetArticle = article;
+          const timeLink = article.querySelector('time')?.closest('a') as HTMLAnchorElement | null;
+          if (timeLink && timeLink.href) {
+            lastClickedShareTweetUrl = timeLink.href;
+          }
         }
       }
-    }
-  }, { capture: true, passive: true });
+    },
+    { capture: true, passive: true },
+  );
 }
 
 function extractCurrentTweetUrl(): string {
@@ -43,7 +49,9 @@ function extractCurrentTweetUrl(): string {
 
   // 3. Fallback: check if an article is currently hovered/focused
   if (lastClickedTweetArticle) {
-    const timeLink = lastClickedTweetArticle.querySelector('time')?.closest('a') as HTMLAnchorElement | null;
+    const timeLink = lastClickedTweetArticle
+      .querySelector('time')
+      ?.closest('a') as HTMLAnchorElement | null;
     if (timeLink && timeLink.href) {
       return timeLink.href;
     }
@@ -55,10 +63,15 @@ function extractCurrentTweetUrl(): string {
 function triggerReactClick(element: HTMLElement): boolean {
   try {
     const reactPropsKey = Object.keys(element).find(
-      (key) => key.startsWith('__reactProps$') || key.startsWith('__reactEventHandlers$') || key.startsWith('__reactFiber$')
+      key =>
+        key.startsWith('__reactProps$') ||
+        key.startsWith('__reactEventHandlers$') ||
+        key.startsWith('__reactFiber$'),
     );
     if (reactPropsKey) {
-      const props = (element as unknown as Record<string, { onClick?: (e: unknown) => void }>)[reactPropsKey];
+      const props = (element as unknown as Record<string, { onClick?: (e: unknown) => void }>)[
+        reactPropsKey
+      ];
       if (props?.onClick) {
         props.onClick({ stopPropagation: () => {}, preventDefault: () => {} });
         return true;
@@ -74,27 +87,39 @@ function dismissTwitterMenu(nativeItem?: HTMLElement): void {
   // 1. If native item exists, trigger React handler or click to close menu naturally
   if (nativeItem) {
     triggerReactClick(nativeItem);
-    
+
     // Dispatch mouse events on native item
-    ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach((type) => {
-      nativeItem.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }));
+    ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(type => {
+      nativeItem.dispatchEvent(
+        new MouseEvent(type, { bubbles: true, cancelable: true, view: window }),
+      );
     });
   }
 
   // 2. Dispatch click/pointer events on the overlay mask inside #layers
   const layers = document.getElementById('layers');
   if (layers) {
-    const backdropElements = layers.querySelectorAll('[data-testid="mask"], div[tabindex="-1"], div[aria-hidden="true"]');
-    backdropElements.forEach((el) => {
-      ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach((type) => {
+    const backdropElements = layers.querySelectorAll(
+      '[data-testid="mask"], div[tabindex="-1"], div[aria-hidden="true"]',
+    );
+    backdropElements.forEach(el => {
+      ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(type => {
         el.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }));
       });
     });
   }
 
   // 3. Fallback Escape key event
-  ['keydown', 'keyup'].forEach((type) => {
-    document.dispatchEvent(new KeyboardEvent(type, { key: 'Escape', code: 'Escape', keyCode: 27, which: 27, bubbles: true }));
+  ['keydown', 'keyup'].forEach(type => {
+    document.dispatchEvent(
+      new KeyboardEvent(type, {
+        key: 'Escape',
+        code: 'Escape',
+        keyCode: 27,
+        which: 27,
+        bubbles: true,
+      }),
+    );
   });
 
   // 4. Click body
@@ -107,9 +132,9 @@ function injectEmbedOptionIntoMenu(menu: HTMLElement): void {
 
   // Find all menu items
   const items = Array.from(menu.querySelectorAll('div[role="menuitem"], [role="menuitem"]'));
-  
+
   // Find the native "Copy link" item
-  const copyLinkItem = items.find((item) => {
+  const copyLinkItem = items.find(item => {
     const text = item.textContent?.toLowerCase() || '';
     return text.includes('copy link') || text.includes('sao chép liên kết');
   }) as HTMLElement | undefined;
@@ -128,7 +153,7 @@ function injectEmbedOptionIntoMenu(menu: HTMLElement): void {
   }
 
   // Handle click on our injected embed button
-  embedItem.addEventListener('click', async (e) => {
+  embedItem.addEventListener('click', async e => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -174,11 +199,14 @@ function injectEmbedOptionIntoMenu(menu: HTMLElement): void {
  */
 export function initXShareInjector(): void {
   // 1. Load initial config & subscribe to changes
-  StorageEngine.get<LinkConverterConfig>(STORAGE_KEY_LINK_CONVERTER, DEFAULT_LINK_CONVERTER_CONFIG).then((config) => {
+  StorageEngine.get<LinkConverterConfig>(
+    STORAGE_KEY_LINK_CONVERTER,
+    DEFAULT_LINK_CONVERTER_CONFIG,
+  ).then(config => {
     cachedConfig = config;
   });
 
-  StorageEngine.subscribe<LinkConverterConfig>(STORAGE_KEY_LINK_CONVERTER, (newConfig) => {
+  StorageEngine.subscribe<LinkConverterConfig>(STORAGE_KEY_LINK_CONVERTER, newConfig => {
     if (newConfig) {
       cachedConfig = newConfig;
     }
@@ -191,7 +219,7 @@ export function initXShareInjector(): void {
   const observer = new SafeObserver({
     containerSelector: '#layers',
     targetSelector: 'div[role="menu"][data-testid="Dropdown"], div[role="menu"]',
-    onTargetFound: (menu) => {
+    onTargetFound: menu => {
       injectEmbedOptionIntoMenu(menu);
     },
     debounceMs: 10,

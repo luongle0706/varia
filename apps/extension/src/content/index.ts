@@ -9,7 +9,12 @@ function routeContentFeatures(): void {
   const hostname = window.location.hostname.toLowerCase();
 
   // 1. 𝕏 (Twitter) Feature Hook
-  if (hostname === 'x.com' || hostname === 'twitter.com' || hostname.endsWith('.x.com') || hostname.endsWith('.twitter.com')) {
+  if (
+    hostname === 'x.com' ||
+    hostname === 'twitter.com' ||
+    hostname.endsWith('.x.com') ||
+    hostname.endsWith('.twitter.com')
+  ) {
     initXShareInjector();
   }
 

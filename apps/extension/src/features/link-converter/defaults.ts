@@ -10,7 +10,7 @@ export const DEFAULT_PLATFORM_PRESETS: PlatformPreset[] = [
       'https://fxtwitter.com',
       'https://cunnyx.com',
       'https://vxtwitter.com',
-      'https://twittpr.com'
+      'https://twittpr.com',
     ],
     selectedEngine: 'https://fixupx.com',
     enabled: true,
@@ -70,7 +70,7 @@ export const DEFAULT_PLATFORM_PRESETS: PlatformPreset[] = [
     engines: ['https://phixiv.net'],
     selectedEngine: 'https://phixiv.net',
     enabled: true,
-  }
+  },
 ];
 
 export const DEFAULT_LINK_CONVERTER_CONFIG: LinkConverterConfig = {

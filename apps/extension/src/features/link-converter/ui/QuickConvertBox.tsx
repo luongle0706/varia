@@ -39,7 +39,7 @@ export const QuickConvertBox: React.FC<QuickConvertBoxProps> = ({ config }) => {
           className="text-input"
           placeholder="Paste an X, Reddit, or Instagram link..."
           value={inputUrl}
-          onChange={(e) => setInputUrl(e.target.value)}
+          onChange={e => setInputUrl(e.target.value)}
         />
       </div>
 

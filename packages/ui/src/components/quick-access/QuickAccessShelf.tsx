@@ -82,35 +82,32 @@ export const QuickAccessShelf: React.FC<QuickAccessShelfProps> = memo(
     );
 
     // Start drag immediately on 6-dots icon handle pointer down
-    const handleStartDrag = useCallback(
-      (e: React.PointerEvent, index: number) => {
-        if (e.button !== 0) return;
+    const handleStartDrag = useCallback((e: React.PointerEvent, index: number) => {
+      if (e.button !== 0) return;
 
-        const targetCard = (e.currentTarget as HTMLElement).closest('[data-quick-access-item]');
-        if (targetCard) {
-          const rect = targetCard.getBoundingClientRect();
-          grabOffsetRef.current = {
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top,
-          };
-        }
+      const targetCard = (e.currentTarget as HTMLElement).closest('[data-quick-access-item]');
+      if (targetCard) {
+        const rect = targetCard.getBoundingClientRect();
+        grabOffsetRef.current = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        };
+      }
 
-        setDragIndex(index);
-        setInsertionIndex(index);
-        dragIndexRef.current = index;
-        insertionIndexRef.current = index;
-        isOutsideShelfRef.current = false;
-        setIsOutsideShelf(false);
+      setDragIndex(index);
+      setInsertionIndex(index);
+      dragIndexRef.current = index;
+      insertionIndexRef.current = index;
+      isOutsideShelfRef.current = false;
+      setIsOutsideShelf(false);
 
-        // Position preview immediately
-        if (previewRef.current) {
-          const x = e.clientX - grabOffsetRef.current.x;
-          const y = e.clientY - grabOffsetRef.current.y;
-          previewRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(2.5deg)`;
-        }
-      },
-      [],
-    );
+      // Position preview immediately
+      if (previewRef.current) {
+        const x = e.clientX - grabOffsetRef.current.x;
+        const y = e.clientY - grabOffsetRef.current.y;
+        previewRef.current.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(2.5deg)`;
+      }
+    }, []);
 
     // Ultra-smooth Window Pointer Tracking using direct DOM transform and discrete state updates
     useEffect(() => {
@@ -273,15 +270,17 @@ export const QuickAccessShelf: React.FC<QuickAccessShelfProps> = memo(
                 backgroundColor: isOutsideShelf
                   ? 'rgba(40, 15, 20, 0.95)'
                   : 'rgba(20, 20, 26, 0.96)',
-                border: `1.5px solid ${isOutsideShelf ? colorTokens.accent.rose : colorTokens.accent.violet
-                  }`,
+                border: `1.5px solid ${
+                  isOutsideShelf ? colorTokens.accent.rose : colorTokens.accent.violet
+                }`,
                 borderRadius: 2.5,
                 p: 1.5,
                 boxShadow: isOutsideShelf
                   ? '0 15px 30px rgba(0,0,0,0.8), 0 0 20px rgba(244, 63, 94, 0.4)'
                   : '0 15px 30px rgba(0, 0, 0, 0.8), 0 0 16px rgba(139, 92, 246, 0.3)',
                 willChange: 'transform',
-                transition: 'border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease',
+                transition:
+                  'border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease',
               }}
             >
               <Stack direction="row" alignItems="center" spacing={1}>
@@ -346,8 +345,9 @@ export const QuickAccessShelf: React.FC<QuickAccessShelfProps> = memo(
             p: { xs: 2, sm: 2.5 },
             backgroundColor: colorTokens.bg.surface,
             backdropFilter: 'blur(16px)',
-            border: `1px solid ${dragIndex !== null ? colorTokens.accent.violet : colorTokens.bg.border
-              }`,
+            border: `1px solid ${
+              dragIndex !== null ? colorTokens.accent.violet : colorTokens.bg.border
+            }`,
             borderRadius: 3.5,
             boxShadow:
               dragIndex !== null
@@ -530,24 +530,22 @@ export const QuickAccessShelf: React.FC<QuickAccessShelfProps> = memo(
               })}
 
               {/* Clean Drop Indicator Line (At End of List) */}
-              {dragIndex !== null &&
-                !isOutsideShelf &&
-                insertionIndex === favoriteTools.length && (
-                  <Box
-                    sx={{
-                      width: 2.5,
-                      minWidth: 2.5,
-                      height: 38,
-                      alignSelf: 'center',
-                      borderRadius: 2,
-                      backgroundColor: colorTokens.accent.violet,
-                      boxShadow: '0 0 8px rgba(139, 92, 246, 0.5)',
-                      position: 'relative',
-                      zIndex: 10,
-                      flexShrink: 0,
-                    }}
-                  />
-                )}
+              {dragIndex !== null && !isOutsideShelf && insertionIndex === favoriteTools.length && (
+                <Box
+                  sx={{
+                    width: 2.5,
+                    minWidth: 2.5,
+                    height: 38,
+                    alignSelf: 'center',
+                    borderRadius: 2,
+                    backgroundColor: colorTokens.accent.violet,
+                    boxShadow: '0 0 8px rgba(139, 92, 246, 0.5)',
+                    position: 'relative',
+                    zIndex: 10,
+                    flexShrink: 0,
+                  }}
+                />
+              )}
             </Box>
           )}
         </Box>

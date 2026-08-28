@@ -70,7 +70,10 @@ export const AddToolPopover: React.FC<AddToolPopoverProps> = memo(
         }}
       >
         <Stack spacing={1.2}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, px: 0.5, color: colorTokens.text.primary }}>
+          <Typography
+            variant="subtitle2"
+            sx={{ fontWeight: 700, px: 0.5, color: colorTokens.text.primary }}
+          >
             Add Tool to Quick Access
           </Typography>
 
@@ -104,7 +107,10 @@ export const AddToolPopover: React.FC<AddToolPopoverProps> = memo(
           <Box sx={{ maxHeight: 240, overflowY: 'auto' }}>
             {unpinnedTools.length === 0 ? (
               <Box sx={{ py: 3, textAlign: 'center' }}>
-                <Typography variant="body2" sx={{ color: colorTokens.text.muted, fontSize: '0.85rem' }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: colorTokens.text.muted, fontSize: '0.85rem' }}
+                >
                   {favoriteToolIds.length >= availableTools.length
                     ? 'All available tools are pinned! ⭐'
                     : 'No matching tools found'}
@@ -139,7 +145,10 @@ export const AddToolPopover: React.FC<AddToolPopoverProps> = memo(
                       }}
                     >
                       <ListItemIcon sx={{ minWidth: 32 }}>
-                        <Wand2 size={16} color={categoryMeta?.badgeColor || colorTokens.accent.violet} />
+                        <Wand2
+                          size={16}
+                          color={categoryMeta?.badgeColor || colorTokens.accent.violet}
+                        />
                       </ListItemIcon>
                       <ListItemText
                         primary={
@@ -148,7 +157,11 @@ export const AddToolPopover: React.FC<AddToolPopoverProps> = memo(
                           </Typography>
                         }
                         secondary={
-                          <Typography variant="caption" sx={{ color: colorTokens.text.secondary }} noWrap>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: colorTokens.text.secondary }}
+                            noWrap
+                          >
                             {categoryMeta?.name || tool.category}
                           </Typography>
                         }

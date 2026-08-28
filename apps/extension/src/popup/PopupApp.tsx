@@ -1,24 +1,30 @@
 import React, { useState } from 'react';
 import { Link2, Download, Settings, Sparkles, Keyboard } from 'lucide-react';
 import { useExtensionStorage } from '../core/storage/useExtensionStorage';
-import { DEFAULT_LINK_CONVERTER_CONFIG, STORAGE_KEY_LINK_CONVERTER } from '../features/link-converter/defaults';
+import {
+  DEFAULT_LINK_CONVERTER_CONFIG,
+  STORAGE_KEY_LINK_CONVERTER,
+} from '../features/link-converter/defaults';
 import { LinkConverterConfig } from '../features/link-converter/types';
 import { LinkConverterSection } from '../features/link-converter/ui/LinkConverterSection';
 import { QuickConvertBox } from '../features/link-converter/ui/QuickConvertBox';
-import { DEFAULT_MEDIA_DOWNLOADER_CONFIG, STORAGE_KEY_MEDIA_DOWNLOADER } from '../features/media-downloader/types';
+import {
+  DEFAULT_MEDIA_DOWNLOADER_CONFIG,
+  STORAGE_KEY_MEDIA_DOWNLOADER,
+} from '../features/media-downloader/types';
 import { MediaDownloaderSection } from '../features/media-downloader/ui/MediaDownloaderSection';
 
 export const PopupApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'links' | 'downloader' | 'about'>('links');
-  
+
   const [linkConfig, setLinkConfig] = useExtensionStorage<LinkConverterConfig>(
     STORAGE_KEY_LINK_CONVERTER,
-    DEFAULT_LINK_CONVERTER_CONFIG
+    DEFAULT_LINK_CONVERTER_CONFIG,
   );
 
   const [mediaConfig, setMediaConfig] = useExtensionStorage(
     STORAGE_KEY_MEDIA_DOWNLOADER,
-    DEFAULT_MEDIA_DOWNLOADER_CONFIG
+    DEFAULT_MEDIA_DOWNLOADER_CONFIG,
   );
 
   return (
@@ -126,7 +132,8 @@ export const PopupApp: React.FC = () => {
               </div>
 
               <p className="about-text">
-                This extension is designed with a plugin architecture ready to connect with your local Varia Hub server for video downloads, GIF studio, and audio conversion tools.
+                This extension is designed with a plugin architecture ready to connect with your
+                local Varia Hub server for video downloads, GIF studio, and audio conversion tools.
               </p>
             </div>
           </div>
@@ -137,7 +144,9 @@ export const PopupApp: React.FC = () => {
       <footer className="popup-footer">
         <div className="footer-tip">
           <Keyboard size={12} />
-          <span>Press <strong>Alt+Shift+C</strong> to convert tab</span>
+          <span>
+            Press <strong>Alt+Shift+C</strong> to convert tab
+          </span>
         </div>
       </footer>
     </div>

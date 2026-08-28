@@ -19,7 +19,10 @@ export function initLinkConverterBackground(): void {
         const targetUrl = info.linkUrl || info.pageUrl;
         if (!targetUrl) return;
 
-        const config = await StorageEngine.get<LinkConverterConfig>(STORAGE_KEY_LINK_CONVERTER, DEFAULT_LINK_CONVERTER_CONFIG);
+        const config = await StorageEngine.get<LinkConverterConfig>(
+          STORAGE_KEY_LINK_CONVERTER,
+          DEFAULT_LINK_CONVERTER_CONFIG,
+        );
         const result = convertUrl(targetUrl, config);
 
         // Execute clipboard write in active tab context
@@ -36,11 +39,14 @@ export function initLinkConverterBackground(): void {
 
   // Keyboard Command Setup (Alt+Shift+C)
   if (typeof chrome !== 'undefined' && chrome?.commands) {
-    chrome.commands.onCommand.addListener(async (command) => {
+    chrome.commands.onCommand.addListener(async command => {
       if (command === 'convert-active-tab') {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (tab?.id && tab?.url) {
-          const config = await StorageEngine.get<LinkConverterConfig>(STORAGE_KEY_LINK_CONVERTER, DEFAULT_LINK_CONVERTER_CONFIG);
+          const config = await StorageEngine.get<LinkConverterConfig>(
+            STORAGE_KEY_LINK_CONVERTER,
+            DEFAULT_LINK_CONVERTER_CONFIG,
+          );
           const result = convertUrl(tab.url, config);
 
           chrome.scripting?.executeScript?.({
