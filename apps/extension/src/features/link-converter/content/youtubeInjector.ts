@@ -1,4 +1,3 @@
-import { SafeObserver } from '../../../core/dom/safeObserver';
 import { StorageEngine } from '../../../core/storage/storageEngine';
 import { DEFAULT_LINK_CONVERTER_CONFIG, STORAGE_KEY_LINK_CONVERTER } from '../defaults';
 import { LinkConverterConfig } from '../types';
@@ -242,7 +241,8 @@ function handleYouTubeShareModal(panel: HTMLElement): void {
 }
 
 /**
- * Initialize YouTube Context Menu & Share Modal Injector
+ * Initialize YouTube Context Menu Injector with 100% Event-Driven zero-overhead design
+ * (No continuous MutationObserver watching ytd-app or document.body)
  */
 export function initYouTubeInjector(): void {
   // 1. Sync stored configurations
@@ -259,32 +259,77 @@ export function initYouTubeInjector(): void {
     }
   });
 
-  // 2. High-performance observer on YouTube video player context menu
-  const menuObserver = new SafeObserver({
-    containerSelector: '.html5-video-player, #movie_player, ytd-app, body',
-    targetSelector: '.ytp-contextmenu .ytp-panel-menu, .ytp-popup.ytp-contextmenu',
-    onTargetFound: el => {
-      const panelMenu = el.classList.contains('ytp-panel-menu')
-        ? el
-        : el.querySelector('.ytp-panel-menu');
-      if (panelMenu) {
-        injectYouTubePlayerContextMenu(panelMenu as HTMLElement);
-      }
+  // 2. Event-driven right-click listener (Zero background CPU usage)
+  document.addEventListener(
+    'contextmenu',
+    e => {
+      if (!cachedConfig.enabled || !cachedConfig.showInShareMenu) return;
+
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      // Only trigger if right-clicking on or inside the video player
+      const isPlayer =
+        target.closest('.html5-video-player, #movie_player, video, .ytp-cued-thumbnail-overlay') !==
+        null;
+      if (!isPlayer) return;
+
+      // Check for YouTube's player context menu over short animation frames
+      let attempts = 0;
+      const maxAttempts = 15;
+
+      const checkAndInject = () => {
+        const panelMenu = document.querySelector(
+          '.ytp-contextmenu .ytp-panel-menu',
+        ) as HTMLElement | null;
+        if (panelMenu) {
+          injectYouTubePlayerContextMenu(panelMenu);
+          return;
+        }
+        attempts++;
+        if (attempts < maxAttempts) {
+          requestAnimationFrame(checkAndInject);
+        }
+      };
+
+      requestAnimationFrame(checkAndInject);
     },
-    debounceMs: 10,
-  });
+    { passive: true, capture: true },
+  );
 
-  menuObserver.start();
+  // 3. Event-driven Share button click listener for Share dialog
+  document.addEventListener(
+    'click',
+    e => {
+      if (!cachedConfig.enabled) return;
 
-  // 3. Observer on YouTube Share Modal
-  const shareObserver = new SafeObserver({
-    containerSelector: 'ytd-popup-container, ytd-app, body',
-    targetSelector: 'ytd-unified-share-panel-renderer, ytd-share-target-renderer',
-    onTargetFound: panel => {
-      handleYouTubeShareModal(panel);
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      const isShareBtn =
+        target.closest(
+          'button[aria-label*="Share"], button[aria-label*="share"], ytd-share-target-renderer',
+        ) !== null;
+      if (!isShareBtn) return;
+
+      // Once share button is clicked, check for share URL input briefly
+      let attempts = 0;
+      const checkShareInput = () => {
+        const panel = document.querySelector(
+          'ytd-unified-share-panel-renderer, ytd-share-target-renderer',
+        ) as HTMLElement | null;
+        if (panel) {
+          handleYouTubeShareModal(panel);
+          return;
+        }
+        attempts++;
+        if (attempts < 12) {
+          setTimeout(checkShareInput, 50);
+        }
+      };
+
+      setTimeout(checkShareInput, 50);
     },
-    debounceMs: 50,
-  });
-
-  shareObserver.start();
+    { passive: true },
+  );
 }

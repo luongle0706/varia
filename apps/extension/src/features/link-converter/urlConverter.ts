@@ -60,9 +60,6 @@ export function formatYouTubeUrl(
   if (host === 'youtu.be') {
     return `https://youtu.be/${videoId}${timeQuery}`;
   }
-  if (host.includes('yout-ube.com')) {
-    return `https://yout-ube.com/watch?v=${videoId}${timeQuery}`;
-  }
   if (host.includes('music.youtube.com')) {
     return `https://music.youtube.com/watch?v=${videoId}${timeQuery}`;
   }

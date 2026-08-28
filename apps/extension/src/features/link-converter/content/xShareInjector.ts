@@ -5,53 +5,22 @@ import { LinkConverterConfig } from '../types';
 import { convertUrl } from '../urlConverter';
 
 let cachedConfig: LinkConverterConfig = { ...DEFAULT_LINK_CONVERTER_CONFIG };
-let lastClickedShareTweetUrl: string | null = null;
-let lastClickedTweetArticle: HTMLElement | null = null;
-
-// Track which tweet share button was clicked on the timeline
-function setupShareClickTracker(): void {
-  document.addEventListener(
-    'pointerdown',
-    e => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-
-      // Check if clicked element or parent is the share button
-      const shareBtn = target.closest(
-        'button[data-testid="share"], [aria-label*="Share"], [aria-label*="share"]',
-      );
-      if (shareBtn) {
-        // Find parent tweet article
-        const article = shareBtn.closest('article[data-testid="tweet"]') as HTMLElement | null;
-        if (article) {
-          lastClickedTweetArticle = article;
-          const timeLink = article.querySelector('time')?.closest('a') as HTMLAnchorElement | null;
-          if (timeLink && timeLink.href) {
-            lastClickedShareTweetUrl = timeLink.href;
-          }
-        }
-      }
-    },
-    { capture: true, passive: true },
-  );
-}
-
 function extractCurrentTweetUrl(): string {
-  // 1. If we captured a specific tweet URL from the share button click on timeline
-  if (lastClickedShareTweetUrl) {
-    return lastClickedShareTweetUrl;
-  }
-
-  // 2. If viewing a standalone tweet status page
+  // 1. If viewing a standalone tweet status page
   if (window.location.pathname.includes('/status/')) {
     return window.location.href;
   }
 
-  // 3. Fallback: check if an article is currently hovered/focused
-  if (lastClickedTweetArticle) {
-    const timeLink = lastClickedTweetArticle
-      .querySelector('time')
-      ?.closest('a') as HTMLAnchorElement | null;
+  // 2. Find tweet article with an active/expanded menu or hovered article
+  const activeArticle =
+    (document.querySelector(
+      'article[data-testid="tweet"]:has(button[aria-expanded="true"])',
+    ) as HTMLElement | null) ||
+    (document.activeElement?.closest('article[data-testid="tweet"]') as HTMLElement | null) ||
+    (document.querySelector('article[data-testid="tweet"]:hover') as HTMLElement | null);
+
+  if (activeArticle) {
+    const timeLink = activeArticle.querySelector('time')?.closest('a') as HTMLAnchorElement | null;
     if (timeLink && timeLink.href) {
       return timeLink.href;
     }
@@ -212,10 +181,7 @@ export function initXShareInjector(): void {
     }
   });
 
-  // 2. Setup share button click tracker on feed articles
-  setupShareClickTracker();
-
-  // 3. Start high-performance observer targeted at Twitter's modal portal layer (#layers)
+  // 2. Start high-performance observer targeted strictly at Twitter's modal portal layer (#layers)
   const observer = new SafeObserver({
     containerSelector: '#layers',
     targetSelector: 'div[role="menu"][data-testid="Dropdown"], div[role="menu"]',

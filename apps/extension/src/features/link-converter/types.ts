@@ -14,7 +14,6 @@ export interface PlatformPreset {
 export interface LinkConverterConfig {
   enabled: boolean;
   xEngine: string;
-  customXEngines: string[];
   stripTrackingParams: boolean;
   showToast: boolean;
   showInShareMenu: boolean;
