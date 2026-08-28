@@ -1,0 +1,53 @@
+{
+  "manifest_version": 3,
+  "name": "Varia LinkConverter",
+  "version": "1.0.0",
+  "description": "Convert social links (X, Reddit, Instagram, TikTok) into embed-friendly links with custom engine configs (fixupx, fxtwitter, cunnyx, etc.).",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_popup": "src/popup/index.html",
+    "default_title": "Varia LinkConverter",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/index.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage",
+    "clipboardWrite",
+    "contextMenus",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://x.com/*",
+    "https://twitter.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*"
+      ],
+      "js": ["content/index.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "commands": {
+    "convert-active-tab": {
+      "suggested_key": {
+        "default": "Alt+Shift+C",
+        "mac": "Alt+Shift+C"
+      },
+      "description": "Copy embed link for active tab"
+    }
+  }
+}
