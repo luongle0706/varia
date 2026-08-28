@@ -41,14 +41,7 @@ export interface QuickAccessItemProps {
 }
 
 export const QuickAccessItem: React.FC<QuickAccessItemProps> = memo(
-  ({
-    tool,
-    index,
-    isBeingDragged = false,
-    onSelect,
-    onRemove,
-    onStartDrag,
-  }) => {
+  ({ tool, index, isBeingDragged = false, onSelect, onRemove, onStartDrag }) => {
     const categoryMeta = TOOL_CATEGORIES[tool.category];
     const icon = ICON_MAP[tool.icon] || ICON_MAP.default;
 
