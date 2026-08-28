@@ -21,7 +21,12 @@
     "service_worker": "background/index.js",
     "type": "module"
   },
-  "permissions": ["storage", "clipboardWrite", "contextMenus", "activeTab"],
+  "permissions": [
+    "storage",
+    "clipboardWrite",
+    "contextMenus",
+    "activeTab"
+  ],
   "host_permissions": [
     "https://x.com/*",
     "https://twitter.com/*",
@@ -36,7 +41,9 @@
         "https://www.youtube.com/*",
         "https://youtube.com/*"
       ],
-      "js": ["content/index.js"],
+      "js": [
+        "content/index.js"
+      ],
       "run_at": "document_end"
     }
   ],
