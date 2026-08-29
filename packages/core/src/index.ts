@@ -6,3 +6,4 @@ export * from './media.js';
 export * from './youtube.js';
 export * from './gif.js';
 export * from './preferences.js';
+export * from './image/index.js';
