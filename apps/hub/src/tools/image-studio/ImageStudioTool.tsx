@@ -28,6 +28,7 @@ import {
   MediaDropzone,
   ImageComparisonSlider,
   ImageCropOverlay,
+  ImageStudioCanvas,
   ImageTransformPanel,
   MemeEditorPanel,
   ImageAdjustmentsPanel,
@@ -36,7 +37,7 @@ import {
   GlassCard,
   colorTokens,
 } from '@varia/ui';
-import { formatBytes } from '@varia/core';
+import { formatBytes, type CropRect, type AspectRatioPreset } from '@varia/core';
 import {
   useImageStudio,
   DEFAULT_TRANSFORM,
@@ -74,6 +75,7 @@ export const ImageStudioTool: React.FC<ImageStudioToolProps> = ({ onBack }) => {
     isProcessingBatch,
     handleSelectFiles,
     downloadResult,
+    getFullResolutionResult,
     downloadBatchItem,
     downloadBatchZip,
     removeBatchItem,
@@ -82,13 +84,38 @@ export const ImageStudioTool: React.FC<ImageStudioToolProps> = ({ onBack }) => {
   } = useImageStudio();
 
   const [copied, setCopied] = useState(false);
+  const [isCropMode, setIsCropMode] = useState(false);
+  const [pendingCropRect, setPendingCropRect] = useState<CropRect | undefined>(undefined);
+  const [pendingCropPreset, setPendingCropPreset] = useState<AspectRatioPreset>(cropPreset);
+
+  const handleOpenCropMode = () => {
+    setPendingCropRect(cropRect);
+    setPendingCropPreset(cropPreset);
+    setIsCropMode(true);
+  };
+
+  const handleApplyCrop = () => {
+    if (pendingCropRect) {
+      handleCropPresetChange(pendingCropPreset, pendingCropRect);
+    } else {
+      handleResetCrop();
+    }
+    setIsCropMode(false);
+  };
+
+  const handleCancelCrop = () => {
+    setPendingCropRect(cropRect);
+    setPendingCropPreset(cropPreset);
+    setIsCropMode(false);
+  };
 
   const handleCopyImage = async () => {
-    if (!liveResult) return;
     try {
+      const fullResult = (await getFullResolutionResult()) || liveResult;
+      if (!fullResult) return;
       if (typeof ClipboardItem !== 'undefined') {
         await navigator.clipboard.write([
-          new ClipboardItem({ [liveResult.mimeType]: liveResult.blob }),
+          new ClipboardItem({ [fullResult.mimeType]: fullResult.blob }),
         ]);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -424,39 +451,41 @@ export const ImageStudioTool: React.FC<ImageStudioToolProps> = ({ onBack }) => {
                       )}
                     </Stack>
 
-                    {/* Canvas Image Container */}
-                    <Box
-                      sx={{
-                        position: 'relative',
-                        width: '100%',
-                        height: { xs: 340, sm: 460, md: 540 },
-                        borderRadius: 2.5,
-                        overflow: 'hidden',
-                        backgroundColor: '#09090b',
-                        backgroundImage:
-                          'linear-gradient(45deg, #18181b 25%, transparent 25%), linear-gradient(-45deg, #18181b 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #18181b 75%), linear-gradient(-45deg, transparent 75%, #18181b 75%)',
-                        backgroundSize: '20px 20px',
-                        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {liveResult ? (
-                        <Box
-                          component="img"
-                          src={liveResult.url}
-                          alt="Edited Live Result"
-                          sx={{
-                            maxWidth: '100%',
-                            maxHeight: '100%',
-                            objectFit: 'contain',
-                          }}
-                        />
-                      ) : (
+                    {/* Interactive Studio Canvas with Dedicated Crop Mode Flow */}
+                    {activeImageUrl ? (
+                      <ImageStudioCanvas
+                        sourceImageUrl={activeImageUrl}
+                        resultImageUrl={liveResult?.url}
+                        sourceDimensions={dimensions}
+                        cropRect={isCropMode ? (pendingCropRect ?? cropRect) : cropRect}
+                        onCropChange={rect => setPendingCropRect(rect)}
+                        activePreset={isCropMode ? pendingCropPreset : cropPreset}
+                        onPresetChange={preset => setPendingCropPreset(preset)}
+                        onResetCrop={() => {
+                          setPendingCropPreset('freeform');
+                          setPendingCropRect(undefined);
+                        }}
+                        onApplyCrop={handleApplyCrop}
+                        onCancelCrop={handleCancelCrop}
+                        isCropMode={isCropMode}
+                        circular={(isCropMode ? pendingCropPreset : cropPreset) === 'circular'}
+                      />
+                    ) : (
+                      <Box
+                        sx={{
+                          position: 'relative',
+                          width: '100%',
+                          height: { xs: 340, sm: 460, md: 540 },
+                          borderRadius: 2.5,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: '#09090b',
+                        }}
+                      >
                         <CircularProgress size={32} color="secondary" />
-                      )}
-                    </Box>
+                      </Box>
+                    )}
 
                     {/* Action Bar */}
                     <Stack direction="row" spacing={1.5} justifyContent="space-between" mt={2} flexWrap="wrap" gap={1}>
@@ -528,40 +557,68 @@ export const ImageStudioTool: React.FC<ImageStudioToolProps> = ({ onBack }) => {
                     {/* Crop Panel */}
                     <ImageCropOverlay
                       dimensions={dimensions}
-                      activePreset={cropPreset}
-                      cropRect={cropRect}
-                      onPresetChange={handleCropPresetChange}
-                      onResetCrop={handleResetCrop}
+                      activePreset={isCropMode ? pendingCropPreset : cropPreset}
+                      cropRect={isCropMode ? (pendingCropRect ?? cropRect) : cropRect}
+                      onPresetChange={(preset, rect) => {
+                        setPendingCropPreset(preset);
+                        setPendingCropRect(rect);
+                        setIsCropMode(true);
+                      }}
+                      onResetCrop={() => {
+                        setPendingCropPreset('freeform');
+                        setPendingCropRect(undefined);
+                        handleResetCrop();
+                      }}
+                      onOpenCropMode={handleOpenCropMode}
+                      isCropMode={isCropMode}
+                      defaultExpanded={true}
                     />
 
-                    {/* Transform Panel */}
-                    <ImageTransformPanel
-                      transform={transform}
-                      onChange={setTransform}
-                      onReset={() => setTransform(DEFAULT_TRANSFORM)}
-                    />
+                    {/* Other Feature Panels (dimmed when in crop mode to maintain focus) */}
+                    <Box
+                      sx={{
+                        opacity: isCropMode ? 0.45 : 1,
+                        pointerEvents: isCropMode ? 'none' : 'auto',
+                        transition: 'opacity 0.2s ease',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 2.5,
+                      }}
+                    >
+                      {/* Transform Panel */}
+                      <ImageTransformPanel
+                        transform={transform}
+                        onChange={setTransform}
+                        onReset={() => setTransform(DEFAULT_TRANSFORM)}
+                        defaultExpanded={true}
+                      />
 
-                    {/* Meme Generator Panel */}
-                    <MemeEditorPanel
-                      meme={meme}
-                      onChange={setMeme}
-                      onReset={() => setMeme(DEFAULT_MEME)}
-                    />
+                      {/* Meme Generator Panel */}
+                      <MemeEditorPanel
+                        meme={meme}
+                        onChange={setMeme}
+                        onReset={() => setMeme(DEFAULT_MEME)}
+                        defaultExpanded={false}
+                      />
 
-                    {/* Filters & Adjustments Panel */}
-                    <ImageAdjustmentsPanel
-                      filters={filters}
-                      onChange={setFilters}
-                      onReset={() => setFilters(DEFAULT_FILTERS)}
-                    />
+                      {/* Filters & Adjustments Panel */}
+                      <ImageAdjustmentsPanel
+                        filters={filters}
+                        onChange={setFilters}
+                        onReset={() => setFilters(DEFAULT_FILTERS)}
+                        defaultExpanded={false}
+                      />
 
-                    {/* Advanced Compression Panel */}
-                    <CompressionOptionsPanel
-                      compression={compression}
-                      onChange={setCompression}
-                      showAdvancedOnly={true}
-                      currentSizeKb={liveResult ? liveResult.compressedSize / 1024 : undefined}
-                    />
+                      {/* Compression Options Panel */}
+                      <CompressionOptionsPanel
+                        compression={compression}
+                        onChange={setCompression}
+                        currentSizeKb={liveResult ? liveResult.compressedSize / 1024 : undefined}
+                        showAdvancedOnly={false}
+                        collapsible={true}
+                        defaultExpanded={false}
+                      />
+                    </Box>
                   </Stack>
                 </Box>
               </Stack>

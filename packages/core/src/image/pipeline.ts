@@ -2,6 +2,7 @@
  * Deterministic Image Processing Pipeline
  * Orchestrates geometry transformations, cropping, filters, meme text overlays,
  * color quantization, and encoding into a unified execution flow.
+ * Supports dual-resolution rendering (ultra-fast preview proxy + full-res export).
  */
 
 import type {
@@ -21,6 +22,13 @@ import {
 } from './meme.js';
 import { quantizeImageData } from './quantize.js';
 import { encodeCanvasImage } from './compress.js';
+
+export interface ProcessPipelineOptions {
+  /** If true, renders a downsampled preview proxy (default max 1280px) for silky smooth 60 FPS interaction */
+  isPreview?: boolean;
+  /** Maximum width or height for preview canvas (default 1280) */
+  maxPreviewDimension?: number;
+}
 
 /**
  * Loads an image from a File, Blob, or URL into an HTMLImageElement.
@@ -68,13 +76,60 @@ export async function processImagePipeline(
   config: ImageStudioPipelineConfig,
   originalSize: number = 0,
   originalFileName: string = 'image.png',
+  options?: ProcessPipelineOptions,
 ): Promise<ImageProcessResult> {
   const img = source instanceof HTMLImageElement ? source : await loadImageElement(source);
   const rawWidth = img.naturalWidth || img.width;
   const rawHeight = img.naturalHeight || img.height;
 
+  const maxPreviewDim = options?.maxPreviewDimension || 1280;
+  const isPreview = Boolean(options?.isPreview);
+  const shouldDownsample = isPreview && Math.max(rawWidth, rawHeight) > maxPreviewDim;
+
+  let effectiveSource: HTMLImageElement | HTMLCanvasElement = img;
+  let sourceWidth = rawWidth;
+  let sourceHeight = rawHeight;
+  let scaleFactor = 1;
+
+  // Dual-Resolution Preview: Create fast downscaled proxy source
+  if (shouldDownsample) {
+    scaleFactor = maxPreviewDim / Math.max(rawWidth, rawHeight);
+    sourceWidth = Math.round(rawWidth * scaleFactor);
+    sourceHeight = Math.round(rawHeight * scaleFactor);
+
+    const proxyCanvas = createCanvas(sourceWidth, sourceHeight);
+    const proxyCtx = proxyCanvas.getContext('2d', { willReadFrequently: true });
+    if (proxyCtx) {
+      proxyCtx.drawImage(img, 0, 0, sourceWidth, sourceHeight);
+      effectiveSource = proxyCanvas;
+    }
+  }
+
+  // Scale crop & meme configuration if rendering in preview proxy mode
+  let effectiveCrop = config.crop;
+  if (scaleFactor !== 1 && config.crop.rect) {
+    effectiveCrop = {
+      ...config.crop,
+      rect: {
+        x: Math.round(config.crop.rect.x * scaleFactor),
+        y: Math.round(config.crop.rect.y * scaleFactor),
+        width: Math.round(config.crop.rect.width * scaleFactor),
+        height: Math.round(config.crop.rect.height * scaleFactor),
+      },
+    };
+  }
+
+  let effectiveMeme = config.meme;
+  if (scaleFactor !== 1) {
+    effectiveMeme = {
+      ...config.meme,
+      fontSize: Math.max(10, Math.round(config.meme.fontSize * scaleFactor)),
+      outlineWidth: Math.max(1, Math.round(config.meme.outlineWidth * scaleFactor)),
+    };
+  }
+
   // Step 1: Geometric Transform (Rotate, Free Rotate, Flip)
-  const rotatedDims = calculateRotatedDimensions(rawWidth, rawHeight, config.transform.rotate);
+  const rotatedDims = calculateRotatedDimensions(sourceWidth, sourceHeight, config.transform.rotate);
   const transformCanvas = createCanvas(rotatedDims.width, rotatedDims.height);
   const transformCtx = transformCanvas.getContext('2d', { willReadFrequently: true });
 
@@ -85,24 +140,24 @@ export async function processImagePipeline(
   // Draw with geometric transformations
   applyGeometricTransform(
     transformCtx,
-    rawWidth,
-    rawHeight,
+    sourceWidth,
+    sourceHeight,
     rotatedDims.width,
     rotatedDims.height,
     config.transform,
   );
-  transformCtx.drawImage(img, 0, 0);
+  transformCtx.drawImage(effectiveSource, 0, 0);
   transformCtx.restore();
 
   // Step 2: Cropping
   let croppedCanvas: HTMLCanvasElement;
-  if (config.crop.rect) {
-    const clampedCrop = clampCropRect(config.crop.rect, rotatedDims);
+  if (effectiveCrop.rect) {
+    const clampedCrop = clampCropRect(effectiveCrop.rect, rotatedDims);
     croppedCanvas = createCanvas(clampedCrop.width, clampedCrop.height);
     const cropCtx = croppedCanvas.getContext('2d', { willReadFrequently: true });
     if (!cropCtx) throw new Error('Failed to get crop canvas context');
 
-    if (config.crop.circular) {
+    if (effectiveCrop.circular) {
       cropCtx.beginPath();
       cropCtx.arc(
         clampedCrop.width / 2,
@@ -155,8 +210,8 @@ export async function processImagePipeline(
   let finalCanvas: HTMLCanvasElement;
   const tempCtx = filterCanvas.getContext('2d');
   const bannerHeight =
-    config.meme.style === 'caption-banner' && tempCtx
-      ? calculateBannerHeight(tempCtx, config.meme, filterCanvas.width)
+    effectiveMeme.style === 'caption-banner' && tempCtx
+      ? calculateBannerHeight(tempCtx, effectiveMeme, filterCanvas.width)
       : 0;
 
   if (bannerHeight > 0) {
@@ -166,15 +221,15 @@ export async function processImagePipeline(
     if (!finalCtx) throw new Error('Failed to get final canvas context');
 
     // Render banner at top
-    renderCaptionBanner(finalCtx, config.meme, bannerHeight, filterCanvas.width);
+    renderCaptionBanner(finalCtx, effectiveMeme, bannerHeight, filterCanvas.width);
 
     // Draw image below banner
     finalCtx.drawImage(filterCanvas, 0, bannerHeight);
   } else {
     finalCanvas = filterCanvas;
     const finalCtx = finalCanvas.getContext('2d', { willReadFrequently: true });
-    if (finalCtx && config.meme.style === 'classic') {
-      renderClassicMemeText(finalCtx, config.meme, finalCanvas.width, finalCanvas.height);
+    if (finalCtx && effectiveMeme.style === 'classic') {
+      renderClassicMemeText(finalCtx, effectiveMeme, finalCanvas.width, finalCanvas.height);
     }
   }
 

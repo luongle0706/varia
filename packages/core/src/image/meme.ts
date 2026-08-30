@@ -70,7 +70,7 @@ export function getTextXPosition(
 }
 
 /**
- * Measures the required banner height for modern caption style.
+ * Measures the required banner height for modern caption style with vertically centered text.
  */
 export function calculateBannerHeight(
   ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
@@ -81,15 +81,19 @@ export function calculateBannerHeight(
     return 0;
   }
 
-  const padding = Math.max(16, Math.round(canvasWidth * 0.04));
-  const maxTextWidth = canvasWidth - padding * 2;
+  const paddingH = Math.max(16, Math.round(canvasWidth * 0.04));
+  const maxTextWidth = canvasWidth - paddingH * 2;
   const fontSize = config.fontSize || Math.max(18, Math.round(canvasWidth * 0.05));
-  const lineHeight = Math.round(fontSize * 1.35);
+  const lineHeight = Math.round(fontSize * 1.2);
 
-  ctx.font = `700 ${fontSize}px ${config.fontFamily || 'Inter, sans-serif'}`;
+  ctx.font = `600 ${fontSize}px ${config.fontFamily || 'Inter, sans-serif'}`;
   const lines = wrapText(ctx, config.bannerText, maxTextWidth);
+  if (lines.length === 0) return 0;
 
-  return padding * 2 + lines.length * lineHeight;
+  const totalTextHeight = (lines.length - 1) * lineHeight + fontSize;
+  const verticalPadding = Math.max(14, Math.round(fontSize * 0.5));
+
+  return Math.round(totalTextHeight + verticalPadding * 2);
 }
 
 /**
@@ -141,7 +145,7 @@ export function renderClassicMemeText(
   // Render Bottom Text
   if (bottomText) {
     const bottomLines = wrapText(ctx, bottomText, maxTextWidth);
-    const totalBottomHeight = bottomLines.length * lineHeight;
+    const totalBottomHeight = (bottomLines.length - 1) * lineHeight + fontSize;
     let startY = canvasHeight - padding - totalBottomHeight;
 
     for (const line of bottomLines) {
@@ -158,7 +162,7 @@ export function renderClassicMemeText(
 }
 
 /**
- * Renders Modern Caption Banner (Top white/dark rectangular header box).
+ * Renders Modern Caption Banner (Top white/dark rectangular header box with centered padding).
  */
 export function renderCaptionBanner(
   ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
@@ -168,8 +172,8 @@ export function renderCaptionBanner(
 ): void {
   if (bannerHeight <= 0 || !config.bannerText) return;
 
-  const padding = Math.max(16, Math.round(canvasWidth * 0.04));
-  const maxTextWidth = canvasWidth - padding * 2;
+  const paddingH = Math.max(16, Math.round(canvasWidth * 0.04));
+  const maxTextWidth = canvasWidth - paddingH * 2;
   const fontSize = config.fontSize || Math.max(18, Math.round(canvasWidth * 0.05));
   const lineHeight = Math.round(fontSize * 1.35);
   const fontFamily = config.fontFamily || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif';
@@ -188,11 +192,18 @@ export function renderCaptionBanner(
 
   const textToDraw = config.uppercase ? config.bannerText.toUpperCase() : config.bannerText;
   const lines = wrapText(ctx, textToDraw, maxTextWidth);
+  if (lines.length === 0) {
+    ctx.restore();
+    return;
+  }
 
-  let startY = padding;
+  const totalTextHeight = (lines.length - 1) * lineHeight + fontSize;
+  // Perfectly center text block vertically inside bannerHeight
+  let startY = Math.max(0, (bannerHeight - totalTextHeight) / 2);
+
   for (const line of lines) {
     const lineMetrics = ctx.measureText(line);
-    const startX = getTextXPosition(config.align, padding, maxTextWidth, lineMetrics.width);
+    const startX = getTextXPosition(config.align, paddingH, maxTextWidth, lineMetrics.width);
 
     ctx.fillText(line, startX, startY);
     startY += lineHeight;

@@ -247,6 +247,7 @@ export function useImageStudio() {
         pipelineConfig,
         activeFile.size,
         activeFile.name,
+        { isPreview: true, maxPreviewDimension: 1280 },
       );
 
       if (liveResult?.url) {
@@ -389,7 +390,14 @@ export function useImageStudio() {
    */
   const handleCropPresetChange = (preset: AspectRatioPreset, rect: CropRect) => {
     setCropPreset(preset);
-    setCropRect(preset === 'freeform' ? undefined : rect);
+    const isFullFrame =
+      rect.x === 0 &&
+      rect.y === 0 &&
+      dimensions.width > 0 &&
+      rect.width >= dimensions.width &&
+      dimensions.height > 0 &&
+      rect.height >= dimensions.height;
+    setCropRect(isFullFrame && preset === 'freeform' ? undefined : rect);
   };
 
   const handleResetCrop = () => {
@@ -398,16 +406,64 @@ export function useImageStudio() {
   };
 
   /**
-   * Download single active result
+   * Generates a full-resolution pixel-perfect export of the edited image
    */
-  const downloadResult = () => {
-    if (!liveResult) return;
-    const a = document.createElement('a');
-    a.href = liveResult.url;
-    a.download = liveResult.fileName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const getFullResolutionResult = async (): Promise<ImageProcessResult | null> => {
+    if (!imageElement || !activeFile) return null;
+    const pipelineConfig: ImageStudioPipelineConfig = {
+      transform,
+      crop: {
+        preset: cropPreset,
+        rect: cropRect,
+        circular: cropPreset === 'circular',
+      },
+      filters,
+      meme,
+      compression,
+    };
+
+    return await processImagePipeline(
+      imageElement,
+      pipelineConfig,
+      activeFile.size,
+      activeFile.name,
+      { isPreview: false },
+    );
+  };
+
+  /**
+   * Download single active result at full native resolution
+   */
+  const downloadResult = async () => {
+    if (!imageElement || !activeFile) {
+      if (liveResult) {
+        const a = document.createElement('a');
+        a.href = liveResult.url;
+        a.download = liveResult.fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      const fullResult = await getFullResolutionResult();
+      if (!fullResult) return;
+
+      const a = document.createElement('a');
+      a.href = fullResult.url;
+      a.download = fullResult.fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(fullResult.url), 10000);
+    } catch (err) {
+      console.error('Failed to export full resolution image:', err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   /**
@@ -514,6 +570,7 @@ export function useImageStudio() {
     handleSelectImage,
     handleSelectFiles,
     downloadResult,
+    getFullResolutionResult,
     downloadBatchItem,
     downloadBatchZip,
     removeBatchItem,
