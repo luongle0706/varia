@@ -175,7 +175,7 @@ export function renderCaptionBanner(
   const paddingH = Math.max(16, Math.round(canvasWidth * 0.04));
   const maxTextWidth = canvasWidth - paddingH * 2;
   const fontSize = config.fontSize || Math.max(18, Math.round(canvasWidth * 0.05));
-  const lineHeight = Math.round(fontSize * 1.35);
+  const lineHeight = Math.round(fontSize * 1.2);
   const fontFamily = config.fontFamily || 'Inter, -apple-system, BlinkMacSystemFont, sans-serif';
 
   ctx.save();
