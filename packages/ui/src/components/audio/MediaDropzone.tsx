@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Box, Typography, Stack, Button, Chip } from '@mui/material';
 import { UploadCloud, Plus } from 'lucide-react';
 import { colorTokens } from '../../theme/tokens';
@@ -8,15 +8,63 @@ export interface MediaDropzoneProps {
   onFilesSelected: (files: File[]) => void;
   multiple?: boolean;
   disabled?: boolean;
+  accept?: string;
+  formats?: string[];
+  title?: string;
+  dragOverTitle?: string;
+  subtitle?: string;
+  buttonText?: string;
+  icon?: React.ReactNode;
+  validateFile?: (file: File) => boolean;
+  enablePaste?: boolean;
 }
 
 export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
   onFilesSelected,
   multiple = true,
   disabled = false,
+  accept = 'video/*,audio/*,.mp4,.mkv,.webm,.avi,.mov,.flv,.wav,.mp3,.aac,.ogg,.flac,.m4a',
+  formats = ['MP4', 'MKV', 'WebM', 'AVI', 'MOV', 'WAV', 'MP3', 'AAC', 'FLAC', 'OGG'],
+  title = 'Drag & drop video or audio files here',
+  dragOverTitle = 'Drop files right here!',
+  subtitle = 'or click to browse from your computer (100% private, client-side WASM)',
+  buttonText = 'Choose Media Files',
+  icon,
+  validateFile = isMediaFileSupported,
+  enablePaste = true,
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // Global paste handler (Ctrl+V / Cmd+V)
+  useEffect(() => {
+    if (!enablePaste || disabled) return;
+
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      const pastedFiles: File[] = [];
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item && item.kind === 'file') {
+          const file = item.getAsFile();
+          if (file && validateFile(file)) {
+            pastedFiles.push(file);
+          }
+        }
+      }
+
+      if (pastedFiles.length > 0) {
+        onFilesSelected(multiple ? pastedFiles : [pastedFiles[0]!]);
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => {
+      window.removeEventListener('paste', handlePaste);
+    };
+  }, [enablePaste, disabled, multiple, onFilesSelected, validateFile]);
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -33,7 +81,7 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
     setIsDragOver(false);
     if (disabled) return;
 
-    const files = Array.from(e.dataTransfer.files).filter(isMediaFileSupported);
+    const files = Array.from(e.dataTransfer.files).filter(validateFile);
     if (files.length > 0) {
       onFilesSelected(multiple ? files : [files[0]!]);
     }
@@ -41,14 +89,12 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    const files = Array.from(e.target.files).filter(isMediaFileSupported);
+    const files = Array.from(e.target.files).filter(validateFile);
     if (files.length > 0) {
       onFilesSelected(multiple ? files : [files[0]!]);
     }
     e.target.value = '';
   };
-
-  const formats = ['MP4', 'MKV', 'WebM', 'AVI', 'MOV', 'WAV', 'MP3', 'AAC', 'FLAC', 'OGG'];
 
   return (
     <Box
@@ -80,7 +126,7 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
         ref={inputRef}
         type="file"
         multiple={multiple}
-        accept="video/*,audio/*,.mp4,.mkv,.webm,.avi,.mov,.flv,.wav,.mp3,.aac,.ogg,.flac,.m4a"
+        accept={accept}
         onChange={handleFileInputChange}
         style={{ display: 'none' }}
         disabled={disabled}
@@ -106,43 +152,45 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
             boxShadow: isDragOver ? '0 0 30px rgba(139, 92, 246, 0.4)' : 'none',
           }}
         >
-          <UploadCloud size={32} />
+          {icon || <UploadCloud size={32} />}
         </Box>
 
         {/* Text Prompt */}
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 700, mb: 0.5 }}>
-            {isDragOver ? 'Drop files right here!' : 'Drag & drop video or audio files here'}
+            {isDragOver ? dragOverTitle : title}
           </Typography>
           <Typography variant="body2" sx={{ color: colorTokens.text.secondary }}>
-            or click to browse from your computer (100% private, client-side WASM)
+            {subtitle}
           </Typography>
         </Box>
 
         {/* Supported Format Chips */}
-        <Stack
-          direction="row"
-          spacing={0.6}
-          flexWrap="wrap"
-          justifyContent="center"
-          sx={{ maxWidth: 500 }}
-        >
-          {formats.map(fmt => (
-            <Chip
-              key={fmt}
-              label={fmt}
-              size="small"
-              sx={{
-                fontSize: '0.65rem',
-                fontWeight: 600,
-                backgroundColor: 'rgba(255, 255, 255, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.06)',
-                color: colorTokens.text.muted,
-                my: 0.3,
-              }}
-            />
-          ))}
-        </Stack>
+        {formats.length > 0 && (
+          <Stack
+            direction="row"
+            spacing={0.6}
+            flexWrap="wrap"
+            justifyContent="center"
+            sx={{ maxWidth: 500 }}
+          >
+            {formats.map(fmt => (
+              <Chip
+                key={fmt}
+                label={fmt}
+                size="small"
+                sx={{
+                  fontSize: '0.65rem',
+                  fontWeight: 600,
+                  backgroundColor: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  color: colorTokens.text.muted,
+                  my: 0.3,
+                }}
+              />
+            ))}
+          </Stack>
+        )}
 
         <Button
           variant="outlined"
@@ -160,7 +208,7 @@ export const MediaDropzone: React.FC<MediaDropzoneProps> = ({
             },
           }}
         >
-          Choose Media Files
+          {buttonText}
         </Button>
       </Stack>
     </Box>

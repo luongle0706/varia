@@ -28,14 +28,15 @@ export const REGISTERED_TOOLS: VariaToolManifest[] = [
   },
   {
     id: 'tool-image-studio',
-    name: 'Image Compressor & WebP',
+    name: 'Image Editing Studio',
     description:
-      'Lossless & lossy image compression for PNG, JPEG, and WebP directly in your browser.',
+      'Smart visual lossless compression, format converter, crop, rotate, meme generator, and creative filters.',
     category: 'media',
     icon: 'image',
-    tags: ['image', 'webp', 'compress', 'resize'],
+    tags: ['image', 'webp', 'compress', 'convert', 'crop', 'rotate', 'meme', 'filter', 'studio'],
     route: '/image-studio',
-    status: 'coming-soon',
+    status: 'ready',
+    component: () => import('../tools/image-studio/ImageStudioTool'),
   },
 
   // Developer Utilities

@@ -115,6 +115,16 @@ export const variaThemeOptions: ThemeOptions = {
         disableScrollLock: true,
       },
     },
+    MuiPopover: {
+      defaultProps: {
+        disableScrollLock: true,
+      },
+    },
+    MuiMenu: {
+      defaultProps: {
+        disableScrollLock: true,
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {

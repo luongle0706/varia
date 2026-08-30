@@ -29,6 +29,7 @@ const YouTubeDownloaderTool = lazy(
   () => import('./tools/youtube-downloader/YouTubeDownloaderTool'),
 );
 const GifStudioTool = lazy(() => import('./tools/gif-studio/GifStudioTool'));
+const ImageStudioTool = lazy(() => import('./tools/image-studio/ImageStudioTool'));
 
 const DEFAULT_TITLE = 'Varia — Minimalist Everyday Digital Toolkit';
 
@@ -194,6 +195,9 @@ const App: React.FC = () => {
           <YouTubeDownloaderTool onBack={handleBackToHub} />
         )}
         {activeWorkspaceTool.id === 'tool-gif-studio' && <GifStudioTool onBack={handleBackToHub} />}
+        {activeWorkspaceTool.id === 'tool-image-studio' && (
+          <ImageStudioTool onBack={handleBackToHub} />
+        )}
       </Suspense>
     );
   }
