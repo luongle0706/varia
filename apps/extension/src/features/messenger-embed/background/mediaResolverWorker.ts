@@ -7,6 +7,7 @@ import {
 } from '../types';
 import { mediaCache } from '../cache/mediaCache';
 import { resolveMediaEmbed } from '../resolvers';
+import { DEFAULT_MESSENGER_EMBED_CONFIG, STORAGE_KEY_MESSENGER_EMBED } from '../defaults';
 
 /**
  * Handle background media resolution and binary fetch requests
@@ -68,14 +69,34 @@ async function handleResolveMedia(url: string): Promise<ResolveMediaResponse> {
     return { success: false, error: 'Empty URL provided' };
   }
 
+  // Load config to enforce enabled/disabled platforms
+  let config = DEFAULT_MESSENGER_EMBED_CONFIG;
+  try {
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      const stored = await chrome.storage.local.get(STORAGE_KEY_MESSENGER_EMBED);
+      if (stored[STORAGE_KEY_MESSENGER_EMBED]) {
+        config = {
+          ...DEFAULT_MESSENGER_EMBED_CONFIG,
+          ...stored[STORAGE_KEY_MESSENGER_EMBED],
+        };
+      }
+    }
+  } catch {
+    // Use defaults
+  }
+
+  if (!config.enabled) {
+    return { success: false, error: 'Messenger embed feature is disabled' };
+  }
+
   // 1. Check Cache
   const cached = await mediaCache.get(url);
   if (cached) {
     return { success: true, data: cached };
   }
 
-  // 2. Resolve via Platform Extractors
-  const payload = await resolveMediaEmbed(url);
+  // 2. Resolve via Platform Extractors with config
+  const payload = await resolveMediaEmbed(url, config);
   if (!payload) {
     return { success: false, error: 'Unsupported or unresolvable social media URL' };
   }

@@ -254,45 +254,60 @@ export function isInsideMessengerChat(anchor: HTMLAnchorElement): boolean {
   const hostname = window.location.hostname?.toLowerCase() || '';
   const pathname = window.location.pathname?.toLowerCase() || '';
 
-  // 1. If on messenger.com or facebook.com/messages/* (Full Messenger Interface or E2EE):
-  if (
-    hostname === 'messenger.com' ||
-    hostname.endsWith('.messenger.com') ||
-    pathname.startsWith('/messages')
-  ) {
-    return true;
-  }
-
-  // 2. If on the main Facebook website (News Feed, Profile, Reels tab, etc.):
-  // Strictly reject feeds, reels carousels, stories, marketplace
+  // 1. HARD REJECTION: Never inject into Feeds, Reels viewers, Stories, Watch tabs, or Comment sidebars
   if (
     anchor.closest('[role="feed"]') ||
     anchor.closest('[data-pagelet*="Feed"]') ||
     anchor.closest('[data-pagelet*="Reels"]') ||
+    anchor.closest('[data-pagelet*="Watch"]') ||
+    anchor.closest('[data-pagelet*="Video"]') ||
     anchor.closest('[data-pagelet*="Stories"]') ||
+    anchor.closest('[data-pagelet*="Comment"]') ||
     anchor.closest('[aria-label*="Reels" i]') ||
     anchor.closest('[aria-label*="Stories" i]') ||
-    anchor.closest('[aria-label*="Bảng tin" i]')
+    anchor.closest('[aria-label*="Bảng tin" i]') ||
+    anchor.closest('[aria-label*="Bình luận" i]') ||
+    anchor.closest('[aria-label*="Comment" i]') ||
+    anchor.closest('[aria-label*="Comments" i]') ||
+    anchor.closest('form[role="presentation"]')
   ) {
     return false;
   }
 
-  // 3. On main Facebook, it MUST be inside a chat bubble, message row, or popup chat tab
-  const isChat =
-    anchor.closest('[role="row"]') ||
-    anchor.closest('[role="grid"]') ||
-    anchor.closest('[role="dialog"]') ||
+  // 2. Dedicated Messenger interface (messenger.com, facebook.com/messages/*, or test environment):
+  if (
+    hostname === 'messenger.com' ||
+    hostname.endsWith('.messenger.com') ||
+    pathname.startsWith('/messages') ||
+    hostname === 'localhost' ||
+    hostname === ''
+  ) {
+    return Boolean(
+      anchor.closest('[role="row"]') ||
+      anchor.closest('[role="grid"]') ||
+      anchor.closest('[role="main"]') ||
+      anchor.closest('.message-bubble') ||
+      anchor.closest('div[dir="auto"]')
+    );
+  }
+
+  // 3. On main Facebook website, it MUST be inside an explicit floating Messenger popup chat window/tab
+  const isChatTab =
     anchor.closest('[data-pagelet*="ChatTab" i]') ||
     anchor.closest('[data-pagelet*="Messaging" i]') ||
     anchor.closest('[data-pagelet*="Chat" i]') ||
-    anchor.closest('[aria-label*="Messenger" i]') ||
-    anchor.closest('[aria-label*="Chat" i]') ||
-    anchor.closest('[aria-label*="Tin nhắn" i]') ||
-    anchor.closest('[aria-label*="Messages" i]') ||
-    anchor.closest('.message-bubble') ||
     anchor.closest('.fbDockChatTabFlyout') ||
-    anchor.closest('div[dir="auto"]');
+    anchor.closest('[data-testid="mwchat-tab-container"]') ||
+    anchor.closest('[data-testid="messenger-chat-window"]') ||
+    anchor.closest('[role="dialog"][aria-label*="Messenger" i]') ||
+    anchor.closest('[role="dialog"][aria-label*="Chat" i]') ||
+    anchor.closest('[role="dialog"][aria-label*="Tin nhắn" i]') ||
+    anchor.closest('[role="dialog"][aria-label*="Cuộc trò chuyện" i]') ||
+    anchor.closest('[role="complementary"][aria-label*="Messenger" i]') ||
+    anchor.closest('[role="complementary"][aria-label*="Chat" i]') ||
+    anchor.closest('[role="complementary"][aria-label*="Tin nhắn" i]') ||
+    anchor.closest('[role="complementary"][aria-label*="Cuộc trò chuyện" i]');
 
-  return Boolean(isChat);
+  return Boolean(isChatTab);
 }
 
