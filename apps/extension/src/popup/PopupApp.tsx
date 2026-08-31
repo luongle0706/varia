@@ -51,9 +51,7 @@ export const PopupApp: React.FC = () => {
           try {
             const parsed = new URL(url);
             const host = parsed.hostname.toLowerCase();
-            if (host.includes('messenger.com') || host.includes('facebook.com')) {
-              setActiveTab('messenger');
-            } else if (host.includes('youtube.com') || host.includes('youtu.be')) {
+            if (host.includes('youtube.com') || host.includes('youtu.be')) {
               setDetectedPlatformId('youtube');
             } else if (host.includes('x.com') || host.includes('twitter.com')) {
               setDetectedPlatformId('x');

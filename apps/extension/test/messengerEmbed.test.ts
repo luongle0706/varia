@@ -276,5 +276,56 @@ describe('Messenger Rich Media Embed Feature (apps/extension)', () => {
 
       document.body.removeChild(mockFeedContainer);
     });
+
+    it('strictly rejects links inside Facebook Reel video overlay and comment sidebar', async () => {
+      const mockReelContainer = document.createElement('div');
+      mockReelContainer.innerHTML = `
+        <div data-pagelet="Reels_viewer" aria-label="Reels">
+          <div role="dialog">
+            <div dir="auto">
+              <span>Caption on reel:</span>
+              <a href="https://x.com/tech/status/123456">https://x.com/tech/status/123456</a>
+            </div>
+            <div aria-label="Comments">
+              <div role="row">
+                <a href="https://www.instagram.com/reel/abcdef">Check comment</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(mockReelContainer);
+
+      await scanAndInjectEmbeds(mockReelContainer, DEFAULT_MESSENGER_EMBED_CONFIG);
+
+      const cards = mockReelContainer.querySelectorAll('.varia-embed-container');
+      expect(cards.length).toBe(0); // Must NOT inject into Reel player or comments!
+
+      document.body.removeChild(mockReelContainer);
+    });
+
+    it('successfully detects links inside Facebook floating Messenger chat tabs', async () => {
+      const mockChatTab = document.createElement('div');
+      mockChatTab.innerHTML = `
+        <div data-pagelet="ChatTab" class="fbDockChatTabFlyout">
+          <div role="dialog" aria-label="Messenger - John Doe">
+            <div role="row">
+              <div class="message-bubble">
+                <a href="https://x.com/user/status/987654">https://x.com/user/status/987654</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(mockChatTab);
+
+      await scanAndInjectEmbeds(mockChatTab, DEFAULT_MESSENGER_EMBED_CONFIG);
+
+      const injectedCard = mockChatTab.querySelector('.varia-embed-container');
+      expect(injectedCard).not.toBeNull();
+      expect(injectedCard?.getAttribute('data-varia-embed-id')).toBe('x-987654');
+
+      document.body.removeChild(mockChatTab);
+    });
   });
 });
