@@ -5,6 +5,7 @@
 
 import { initXShareInjector } from '../features/link-converter/content/xShareInjector';
 import { initYouTubeInjector } from '../features/link-converter/content/youtubeInjector';
+import { initMessengerEmbedInjector } from '../features/messenger-embed/content/messengerInjector';
 
 function routeContentFeatures(): void {
   const hostname = window.location.hostname.toLowerCase();
@@ -27,6 +28,16 @@ function routeContentFeatures(): void {
     hostname.endsWith('.youtu.be')
   ) {
     initYouTubeInjector();
+  }
+
+  // 3. Meta Messenger Feature Hook (Inline Rich Media Embeds)
+  if (
+    hostname === 'messenger.com' ||
+    hostname === 'facebook.com' ||
+    hostname.endsWith('.messenger.com') ||
+    hostname.endsWith('.facebook.com')
+  ) {
+    initMessengerEmbedInjector();
   }
 }
 

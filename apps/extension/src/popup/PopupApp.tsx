@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link2, Download, Settings, Sparkles, Keyboard } from 'lucide-react';
+import { Link2, Download, Settings, Sparkles, Keyboard, MessageSquare } from 'lucide-react';
 import { useExtensionStorage } from '../core/storage/useExtensionStorage';
 import {
   DEFAULT_LINK_CONVERTER_CONFIG,
@@ -14,9 +14,15 @@ import {
   STORAGE_KEY_MEDIA_DOWNLOADER,
 } from '../features/media-downloader/types';
 import { MediaDownloaderSection } from '../features/media-downloader/ui/MediaDownloaderSection';
+import {
+  DEFAULT_MESSENGER_EMBED_CONFIG,
+  STORAGE_KEY_MESSENGER_EMBED,
+} from '../features/messenger-embed/defaults';
+import { MessengerEmbedConfig } from '../features/messenger-embed/types';
+import { MessengerEmbedSection } from '../features/messenger-embed/ui/MessengerEmbedSection';
 
 export const PopupApp: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'links' | 'downloader' | 'about'>('links');
+  const [activeTab, setActiveTab] = useState<'links' | 'messenger' | 'downloader' | 'about'>('links');
   const [detectedPlatformId, setDetectedPlatformId] = useState<string | null>(null);
   const [activeTabUrl, setActiveTabUrl] = useState<string>('');
 
@@ -24,6 +30,11 @@ export const PopupApp: React.FC = () => {
     STORAGE_KEY_LINK_CONVERTER,
     DEFAULT_LINK_CONVERTER_CONFIG,
     mergeConfigWithDefaults,
+  );
+
+  const [messengerConfig, setMessengerConfig] = useExtensionStorage<MessengerEmbedConfig>(
+    STORAGE_KEY_MESSENGER_EMBED,
+    DEFAULT_MESSENGER_EMBED_CONFIG,
   );
 
   const [mediaConfig, setMediaConfig] = useExtensionStorage(
@@ -40,7 +51,9 @@ export const PopupApp: React.FC = () => {
           try {
             const parsed = new URL(url);
             const host = parsed.hostname.toLowerCase();
-            if (host.includes('youtube.com') || host.includes('youtu.be')) {
+            if (host.includes('messenger.com') || host.includes('facebook.com')) {
+              setActiveTab('messenger');
+            } else if (host.includes('youtube.com') || host.includes('youtu.be')) {
               setDetectedPlatformId('youtube');
             } else if (host.includes('x.com') || host.includes('twitter.com')) {
               setDetectedPlatformId('x');
@@ -98,7 +111,16 @@ export const PopupApp: React.FC = () => {
           onClick={() => setActiveTab('links')}
         >
           <Link2 size={14} />
-          <span>Link Fixer</span>
+          <span>Links</span>
+        </button>
+
+        <button
+          type="button"
+          className={`tab-btn ${activeTab === 'messenger' ? 'active' : ''}`}
+          onClick={() => setActiveTab('messenger')}
+        >
+          <MessageSquare size={14} />
+          <span>Messenger</span>
         </button>
 
         <button
@@ -107,7 +129,7 @@ export const PopupApp: React.FC = () => {
           onClick={() => setActiveTab('downloader')}
         >
           <Download size={14} />
-          <span>Media (IDM)</span>
+          <span>Media</span>
         </button>
 
         <button
@@ -130,6 +152,12 @@ export const PopupApp: React.FC = () => {
               onChange={setLinkConfig}
               detectedPlatformId={detectedPlatformId}
             />
+          </div>
+        )}
+
+        {activeTab === 'messenger' && (
+          <div className="tab-panel animate-fade-in">
+            <MessengerEmbedSection config={messengerConfig} onChange={setMessengerConfig} />
           </div>
         )}
 
