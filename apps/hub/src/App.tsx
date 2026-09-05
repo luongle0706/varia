@@ -30,6 +30,9 @@ const YouTubeDownloaderTool = lazy(
 );
 const GifStudioTool = lazy(() => import('./tools/gif-studio/GifStudioTool'));
 const ImageStudioTool = lazy(() => import('./tools/image-studio/ImageStudioTool'));
+const PatternsStudio = lazy(() =>
+  import('./components/patterns/PatternsStudio').then(m => ({ default: m.PatternsStudio })),
+);
 
 const DEFAULT_TITLE = 'Varia — Minimalist Everyday Digital Toolkit';
 
@@ -40,6 +43,7 @@ const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<FilterCategory>('all');
   const [activeModalTool, setActiveModalTool] = useState<VariaToolManifest | null>(null);
   const [activeWorkspaceTool, setActiveWorkspaceTool] = useState<VariaToolManifest | null>(null);
+  const [isPatternsView, setIsPatternsView] = useState<boolean>(false);
 
   const {
     favoriteToolIds,
@@ -93,12 +97,22 @@ const App: React.FC = () => {
       (basePath ? currentPath.replace(basePath, '') : currentPath).replace(/\/$/, '') || '/';
 
     if (relativePath === '/' || relativePath === '') {
+      setIsPatternsView(false);
       setActiveWorkspaceTool(null);
       setActiveModalTool(null);
       document.title = DEFAULT_TITLE;
       return;
     }
 
+    if (relativePath === '/patterns' || relativePath.startsWith('/patterns')) {
+      setIsPatternsView(true);
+      setActiveWorkspaceTool(null);
+      setActiveModalTool(null);
+      document.title = 'Design Patterns Lab — Varia';
+      return;
+    }
+
+    setIsPatternsView(false);
     const matchedTool = findToolByPath(currentPath);
     if (matchedTool) {
       if (matchedTool.component) {
@@ -131,6 +145,7 @@ const App: React.FC = () => {
   // Select tool handler (updates URL to /tool-name)
   const handleSelectTool = (tool: VariaToolManifest) => {
     const basePath = getBasePath();
+    setIsPatternsView(false);
     window.history.pushState({ toolId: tool.id }, '', `${basePath}${tool.route}`);
     document.title = `${tool.name} — Varia`;
 
@@ -145,10 +160,25 @@ const App: React.FC = () => {
   // Back to Hub handler (updates URL to /)
   const handleBackToHub = () => {
     const basePath = getBasePath();
+    setIsPatternsView(false);
     setActiveWorkspaceTool(null);
     setActiveModalTool(null);
     window.history.pushState({}, '', `${basePath}/`);
     document.title = DEFAULT_TITLE;
+  };
+
+  // Switch between Tools and Design Patterns Lab
+  const handleHeaderTabChange = (tab: 'tools' | 'patterns') => {
+    const basePath = getBasePath();
+    if (tab === 'patterns') {
+      setIsPatternsView(true);
+      setActiveWorkspaceTool(null);
+      setActiveModalTool(null);
+      window.history.pushState({}, '', `${basePath}/patterns`);
+      document.title = 'Design Patterns Lab — Varia';
+    } else {
+      handleBackToHub();
+    }
   };
 
   const filteredTools = useMemo(() => {
@@ -202,10 +232,52 @@ const App: React.FC = () => {
     );
   }
 
+  // Render Patterns Studio if active
+  if (isPatternsView) {
+    return (
+      <Box sx={{ minHeight: '100vh', pb: 10 }}>
+        <AppHeader
+          onOpenSearch={() => setSearchOpen(true)}
+          toolCount={REGISTERED_TOOLS.length}
+          activeTab="patterns"
+          onSelectTab={handleHeaderTabChange}
+        />
+        <Suspense
+          fallback={
+            <Box
+              sx={{
+                minHeight: '80vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <CircularProgress sx={{ color: '#06b6d4' }} />
+            </Box>
+          }
+        >
+          <PatternsStudio onBackToTools={handleBackToHub} />
+        </Suspense>
+
+        <SpotlightSearch
+          open={searchOpen}
+          onClose={() => setSearchOpen(false)}
+          tools={REGISTERED_TOOLS}
+          onSelectTool={handleSelectTool}
+        />
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ minHeight: '100vh', pb: 10 }}>
       {/* Sticky Header */}
-      <AppHeader onOpenSearch={() => setSearchOpen(true)} toolCount={REGISTERED_TOOLS.length} />
+      <AppHeader
+        onOpenSearch={() => setSearchOpen(true)}
+        toolCount={REGISTERED_TOOLS.length}
+        activeTab="tools"
+        onSelectTab={handleHeaderTabChange}
+      />
 
       <Container maxWidth="lg" sx={{ pt: { xs: 5, md: 7 } }}>
         {/* Hero Section */}
