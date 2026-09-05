@@ -8,3 +8,4 @@ export * from './gif.js';
 export * from './preferences.js';
 export * from './image/index.js';
 export * from './socialLinks.js';
+export * from './patterns/index.js';
