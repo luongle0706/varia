@@ -46,6 +46,24 @@ describe('urlConverter', () => {
       expect(result.engine).toBe('cunnyx.com');
     });
 
+    it('strips /photo/:num and /video/:num media subpaths from X status URLs', () => {
+      const vxConfig = {
+        ...DEFAULT_LINK_CONVERTER_CONFIG,
+        xEngine: 'https://vxtwitter.com',
+      };
+      const input = 'https://x.com/shirakamifubuki/status/2103463164969148803/photo/1';
+      const result = convertUrl(input, vxConfig);
+
+      expect(result.matched).toBe(true);
+      expect(result.converted).toBe('https://vxtwitter.com/shirakamifubuki/status/2103463164969148803');
+      expect(result.engine).toBe('vxtwitter.com');
+
+      // Also check video subpath and trailing slash
+      const videoInput = 'https://x.com/shirakamifubuki/status/2103463164969148803/video/1?s=20';
+      const videoResult = convertUrl(videoInput, vxConfig);
+      expect(videoResult.converted).toBe('https://vxtwitter.com/shirakamifubuki/status/2103463164969148803');
+    });
+
     it('converts reddit and instagram links using presets', () => {
       const redditUrl = 'https://www.reddit.com/r/webdev/comments/12345/cool_post/';
       const igUrl = 'https://www.instagram.com/p/Cxyz12345/';

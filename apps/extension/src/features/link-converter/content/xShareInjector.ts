@@ -1,17 +1,29 @@
 import { SafeObserver } from '../../../core/dom/safeObserver';
 import { StorageEngine } from '../../../core/storage/storageEngine';
+import { showToast } from '../../../core/dom/toast';
 import { DEFAULT_LINK_CONVERTER_CONFIG, STORAGE_KEY_LINK_CONVERTER } from '../defaults';
 import { LinkConverterConfig } from '../types';
 import { convertUrl } from '../urlConverter';
 
 let cachedConfig: LinkConverterConfig = { ...DEFAULT_LINK_CONVERTER_CONFIG };
-function extractCurrentTweetUrl(): string {
-  // 1. If viewing a standalone tweet status page
-  if (window.location.pathname.includes('/status/')) {
-    return window.location.href;
-  }
 
-  // 2. Find tweet article with an active/expanded menu or hovered article
+function copyTextToClipboard(text: string): Promise<void> {
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  textarea.remove();
+  return Promise.resolve();
+}
+
+function extractCurrentTweetUrl(): string {
+  // 1. Try to find the specific tweet article with an active/expanded menu or focused element
   const activeArticle =
     (document.querySelector(
       'article[data-testid="tweet"]:has(button[aria-expanded="true"])',
@@ -26,73 +38,50 @@ function extractCurrentTweetUrl(): string {
     }
   }
 
+  // 2. Fall back to current window location (e.g. standalone status page or photo viewer)
   return window.location.href;
 }
 
-function triggerReactClick(element: HTMLElement): boolean {
-  try {
-    const reactPropsKey = Object.keys(element).find(
-      key =>
-        key.startsWith('__reactProps$') ||
-        key.startsWith('__reactEventHandlers$') ||
-        key.startsWith('__reactFiber$'),
-    );
-    if (reactPropsKey) {
-      const props = (element as unknown as Record<string, { onClick?: (e: unknown) => void }>)[
-        reactPropsKey
-      ];
-      if (props?.onClick) {
-        props.onClick({ stopPropagation: () => {}, preventDefault: () => {} });
-        return true;
-      }
-    }
-  } catch {
-    // Ignore error
-  }
-  return false;
-}
-
-function dismissTwitterMenu(nativeItem?: HTMLElement): void {
-  // 1. If native item exists, trigger React handler or click to close menu naturally
-  if (nativeItem) {
-    triggerReactClick(nativeItem);
-
-    // Dispatch mouse events on native item
-    ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(type => {
-      nativeItem.dispatchEvent(
-        new MouseEvent(type, { bubbles: true, cancelable: true, view: window }),
-      );
-    });
-  }
-
-  // 2. Dispatch click/pointer events on the overlay mask inside #layers
+function dismissTwitterDropdown(menu: HTMLElement): void {
+  // Locate the specific dropdown overlay layer under #layers
   const layers = document.getElementById('layers');
-  if (layers) {
-    const backdropElements = layers.querySelectorAll(
-      '[data-testid="mask"], div[tabindex="-1"], div[aria-hidden="true"]',
-    );
-    backdropElements.forEach(el => {
-      ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(type => {
-        el.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }));
-      });
-    });
+  let dropdownLayer: HTMLElement | null = menu;
+
+  while (
+    dropdownLayer &&
+    dropdownLayer.parentElement &&
+    dropdownLayer.parentElement !== layers &&
+    dropdownLayer.parentElement !== document.body
+  ) {
+    dropdownLayer = dropdownLayer.parentElement;
   }
 
-  // 3. Fallback Escape key event
-  ['keydown', 'keyup'].forEach(type => {
-    document.dispatchEvent(
-      new KeyboardEvent(type, {
-        key: 'Escape',
-        code: 'Escape',
-        keyCode: 27,
-        which: 27,
-        bubbles: true,
-      }),
-    );
-  });
+  // If found within #layers, dismiss specifically within this dropdown layer
+  if (dropdownLayer && dropdownLayer !== layers && dropdownLayer !== document.body) {
+    const dropdownMask = dropdownLayer.querySelector('[data-testid="mask"]') as HTMLElement | null;
+    if (dropdownMask) {
+      ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'].forEach(type => {
+        dropdownMask.dispatchEvent(
+          new MouseEvent(type, { bubbles: true, cancelable: true, view: window }),
+        );
+      });
+    }
 
-  // 4. Click body
-  document.body.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    // Fallback: Ensure dropdown container is removed if React does not unmount it immediately
+    setTimeout(() => {
+      if (document.body.contains(menu)) {
+        if (dropdownLayer && dropdownLayer.parentElement) {
+          dropdownLayer.remove();
+        } else {
+          menu.remove();
+        }
+      }
+    }, 60);
+    return;
+  }
+
+  // Fallback: If not inside #layers, remove menu directly
+  menu.remove();
 }
 
 function injectEmbedOptionIntoMenu(menu: HTMLElement): void {
@@ -103,10 +92,17 @@ function injectEmbedOptionIntoMenu(menu: HTMLElement): void {
   const items = Array.from(menu.querySelectorAll('div[role="menuitem"], [role="menuitem"]'));
 
   // Find the native "Copy link" item
-  const copyLinkItem = items.find(item => {
+  const copyLinkItem = (items.find(item => {
     const text = item.textContent?.toLowerCase() || '';
-    return text.includes('copy link') || text.includes('sao chép liên kết');
-  }) as HTMLElement | undefined;
+    return (
+      text.includes('copy link') ||
+      text.includes('sao chép liên kết') ||
+      text.includes('link') ||
+      text.includes('liên kết') ||
+      text.includes('コピー') ||
+      text.includes('copiar')
+    );
+  }) || items[0]) as HTMLElement | undefined;
 
   if (!copyLinkItem || !copyLinkItem.parentElement) return;
 
@@ -116,9 +112,14 @@ function injectEmbedOptionIntoMenu(menu: HTMLElement): void {
   embedItem.setAttribute('id', 'varia-x-copy-embed-item');
 
   // Format label text
-  const textSpan = embedItem.querySelector('span');
-  if (textSpan) {
-    textSpan.textContent = 'Copy embed link';
+  const spans = embedItem.querySelectorAll('span');
+  if (spans.length > 0) {
+    const textSpan = Array.from(spans).reverse().find(s => s.textContent?.trim().length);
+    if (textSpan) {
+      textSpan.textContent = 'Copy embed link';
+    } else {
+      spans[spans.length - 1]!.textContent = 'Copy embed link';
+    }
   }
 
   // Handle click on our injected embed button
@@ -130,30 +131,16 @@ function injectEmbedOptionIntoMenu(menu: HTMLElement): void {
       const rawTweetUrl = extractCurrentTweetUrl();
       const result = convertUrl(rawTweetUrl, cachedConfig);
 
-      // Write embed URL to clipboard
-      const copyToClipboard = async () => {
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(result.converted);
-        } else {
-          const textarea = document.createElement('textarea');
-          textarea.value = result.converted;
-          textarea.style.position = 'fixed';
-          textarea.style.opacity = '0';
-          document.body.appendChild(textarea);
-          textarea.select();
-          document.execCommand('copy');
-          textarea.remove();
-        }
-      };
+      await copyTextToClipboard(result.converted);
 
-      await copyToClipboard();
+      if (cachedConfig.showToast) {
+        showToast(
+          result.engine ? `Copied embed link` : 'Copied embed link to clipboard',
+        );
+      }
 
-      // Close Twitter's dropdown menu immediately
-      dismissTwitterMenu(copyLinkItem);
-
-      // Ensure our converted URL stays in clipboard even if native item handler ran
-      setTimeout(copyToClipboard, 30);
-      setTimeout(copyToClipboard, 100);
+      // Close Twitter's dropdown menu safely without closing the modal
+      dismissTwitterDropdown(menu);
     } catch (err) {
       console.error('[Varia Extension] Failed to copy embed link:', err);
     }

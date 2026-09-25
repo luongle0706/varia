@@ -115,6 +115,10 @@ export function convertUrl(rawUrl: string, config: LinkConverterConfig): Convers
         cleanSearchParams(parsed.searchParams);
       }
 
+      // Normalize status URL: strip media viewer subpaths like /photo/1, /photo/2, /video/1, etc.
+      // e.g. /shirakamifubuki/status/2103463164969148803/photo/1 -> /shirakamifubuki/status/2103463164969148803
+      parsed.pathname = parsed.pathname.replace(/(\/status\/\d+)(?:\/.*)?$/i, '$1');
+
       const targetHost = extractHost(config.xEngine || 'https://fixupx.com');
       parsed.hostname = targetHost;
 
